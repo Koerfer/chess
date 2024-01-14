@@ -36,180 +36,179 @@ type App struct {
 	op        ebiten.DrawImageOptions
 	initiated bool
 
-	whiteBoard     map[*Piece]struct{}
-	blackBoard     map[*Piece]struct{}
-	whitePositions map[int]*Piece
-	blackPositions map[int]*Piece
+	whiteBoard map[int]*Piece
+	blackBoard map[int]*Piece
 
-	whitesTurn bool
+	whitesTurn    bool
+	selectedPiece *Piece
 }
 
 func (a *App) initWhiteBoard() {
-	a.whiteBoard = make(map[*Piece]struct{})
-	a.whiteBoard[&Piece{
-		kind:            Rook,
-		white:           true,
-		currentPosition: 56,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Knight,
-		white:           true,
-		currentPosition: 57,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Bishop,
-		white:           true,
-		currentPosition: 58,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Queen,
-		white:           true,
-		currentPosition: 59,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            King,
-		white:           true,
-		currentPosition: 60,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Bishop,
-		white:           true,
-		currentPosition: 61,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Knight,
-		white:           true,
-		currentPosition: 62,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Rook,
-		white:           true,
-		currentPosition: 63,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 48,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 49,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 50,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 51,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 52,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 53,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 54,
-	}] = value
-	a.whiteBoard[&Piece{
-		kind:            Pawn,
-		white:           true,
-		currentPosition: 55,
-	}] = value
+	a.whiteBoard = make(map[int]*Piece)
+	a.whiteBoard[56] = &Piece{
+		kind:    Rook,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[57] = &Piece{
+		kind:    Knight,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[58] = &Piece{
+		kind:    Bishop,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[59] = &Piece{
+		kind:    Queen,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[60] = &Piece{
+		kind:    King,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[61] = &Piece{
+		kind:    Bishop,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[62] = &Piece{
+		kind:    Knight,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[63] = &Piece{
+		kind:    Rook,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[48] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[49] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[50] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[51] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[52] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[53] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[54] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
+	a.whiteBoard[55] = &Piece{
+		kind:    Pawn,
+		white:   true,
+		options: make(map[int]struct{}),
+	}
 }
 
 func (a *App) initBlackBoard() {
-	a.blackBoard = make(map[*Piece]struct{})
-	a.blackBoard[&Piece{
-		kind:            Rook,
-		white:           false,
-		currentPosition: 0,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Knight,
-		white:           false,
-		currentPosition: 1,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Bishop,
-		white:           false,
-		currentPosition: 2,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Queen,
-		white:           false,
-		currentPosition: 3,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            King,
-		white:           false,
-		currentPosition: 4,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Bishop,
-		white:           false,
-		currentPosition: 5,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Knight,
-		white:           false,
-		currentPosition: 6,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Rook,
-		white:           false,
-		currentPosition: 7,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 8,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 9,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 10,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 11,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 12,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 13,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 14,
-	}] = value
-	a.blackBoard[&Piece{
-		kind:            Pawn,
-		white:           false,
-		currentPosition: 15,
-	}] = value
+	a.blackBoard = make(map[int]*Piece)
+	a.blackBoard[0] = &Piece{
+		kind:    Rook,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[1] = &Piece{
+		kind:    Knight,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[2] = &Piece{
+		kind:    Bishop,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[3] = &Piece{
+		kind:    Queen,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[4] = &Piece{
+		kind:    King,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[5] = &Piece{
+		kind:    Bishop,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[6] = &Piece{
+		kind:    Knight,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[7] = &Piece{
+		kind:    Rook,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[8] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[9] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[10] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[11] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[12] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[13] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[14] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
+	a.blackBoard[15] = &Piece{
+		kind:    Pawn,
+		white:   false,
+		options: make(map[int]struct{}),
+	}
 }
 
 func (a *App) initImages() {
@@ -411,16 +410,6 @@ func (a *App) initTheRest() {
 	a.initImages()
 }
 
-func findSelectedPiece(board map[*Piece]struct{}, position int) *Piece {
-	for piece := range board {
-		if piece.currentPosition == position {
-			return piece
-		}
-	}
-
-	return nil
-}
-
 func (a *App) Update() error {
 	if !a.initiated {
 		a.init()
@@ -436,29 +425,34 @@ func (a *App) Update() error {
 			return nil
 		}
 
-		var piece *Piece
+		var board map[int]*Piece
 		switch a.whitesTurn {
 		case true:
-			piece = findSelectedPiece(a.whiteBoard, position)
+			board = a.whiteBoard
 		case false:
-			piece = findSelectedPiece(a.blackBoard, position)
+			board = a.blackBoard
 		}
 
-		for option := range piece.options {
+		if piece, ok := board[position]; ok {
+			piece.calculateOptions(a.whiteBoard, a.blackBoard, position)
+			piece.lastPosition = position
+			a.selectedPiece = piece
+		}
+
+		if a.selectedPiece == nil {
+			return nil
+		}
+
+		for option := range a.selectedPiece.options {
 			if position != option {
 				continue
 			}
 
-			piece.lastPosition = piece.currentPosition
-			piece.currentPosition = option
+			board[option] = a.selectedPiece
+			delete(board, a.selectedPiece.lastPosition)
+			a.selectedPiece = nil
 			return nil
 		}
-
-		if piece == nil {
-			return nil
-		}
-
-		piece.calculateOptions(a.whiteBoard, a.blackBoard)
 	}
 
 	return nil

@@ -1,11 +1,10 @@
 package board
 
 type Piece struct {
-	kind            PieceKind
-	white           bool
-	currentPosition int
-	lastPosition    int
-	options         map[int]struct{}
+	kind         PieceKind
+	white        bool
+	lastPosition int
+	options      map[int]struct{}
 }
 
 type PieceKind int8

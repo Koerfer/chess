@@ -2,159 +2,159 @@ package board
 
 var value struct{}
 
-func (p Piece) calculateOptions(whiteBoard map[*Piece]struct{}, blackBoard map[*Piece]struct{}) {
+func (p *Piece) calculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int) {
 	p.options = make(map[int]struct{})
 	switch p.white {
 	case true:
 		switch p.kind {
 		case Pawn:
-			if p.currentPosition/8 == 0 { // top of board
+			if position/8 == 0 { // top of board
 				p.kind = Queen
 				return // add convert to better Piece logic
 			}
-			if p.currentPosition%8 == 0 { // if left on board
-				if blackBoard[p.currentPosition-7] != 0 { // if black Piece up right
-					m.options[p.currentPosition-7] = value // add capture move
+			if position%8 == 0 { // if left on board
+				if _, ok := blackBoard[position-7]; ok { // if black Piece up right
+					p.options[position-7] = value // add capture move
 				}
 
-			} else if p.currentPosition%8 == 7 { // if right on board
-				if blackBoard[p.currentPosition-9] != 0 { // if black Piece up left
-					m.options[p.currentPosition-9] = value // add capture move
+			} else if position%8 == 7 { // if right on board
+				if _, ok := blackBoard[position-9]; ok { // if black Piece up left
+					p.options[position-9] = value // add capture move
 				}
 			} else { /// if in middle
-				if blackBoard[p.currentPosition-7] != 0 { // if black Piece up right
-					m.options[p.currentPosition-7] = value // add capture move
+				if _, ok := blackBoard[position-7]; ok { // if black Piece up right
+					p.options[position-7] = value // add capture move
 				}
-				if blackBoard[p.currentPosition-9] != 0 { // if black Piece up left
-					m.options[p.currentPosition-9] = value // add capture move
+				if _, ok := blackBoard[position-9]; ok { // if black Piece up left
+					p.options[position-9] = value // add capture move
 				}
 			}
 
-			if p.currentPosition/8 == 6 {
-				if blackBoard[p.currentPosition-16] != 0 {
-					m.options[p.currentPosition-8] = value
-					m.simpleDelete()
+			if position/8 == 6 {
+				if _, ok := blackBoard[position-16]; ok {
+					p.options[position-8] = value
+					p.simpleDelete(whiteBoard)
 					return
 				}
-				m.options[p.currentPosition-8] = value
-				m.options[p.currentPosition-16] = value
-				m.goFarDelete(p.kind)
+				p.options[position-8] = value
+				p.options[position-16] = value
+				p.goFarDelete(whiteBoard)
 				return
 			}
-			if blackBoard[p.currentPosition-8] != 0 {
+			if _, ok := blackBoard[position-8]; ok {
 				return
 			}
-			m.options[p.currentPosition-8] = value
-			m.simpleDelete()
+			p.options[position-8] = value
+			p.simpleDelete(whiteBoard)
 			return
 		case Knight:
-			right := p.currentPosition % 8
-			down := p.currentPosition / 8
+			right := position % 8
+			down := position / 8
 			up := -8
 			left := -1
 			if right-2 >= 0 { // left 2 ok
 				if down-1 >= 0 { // up 1 ok
-					m.options[p.currentPosition+left*2+up] = value
+					p.options[position+left*2+up] = value
 				}
 				if down+1 <= 7 { // down 1 ok
-					m.options[p.currentPosition+left*2-up] = value
+					p.options[position+left*2-up] = value
 				}
 			}
 
 			if right+2 <= 7 {
 				if down-1 >= 0 {
-					m.options[p.currentPosition-left*2+up] = value
+					p.options[position-left*2+up] = value
 				}
 				if down+1 <= 7 {
-					m.options[p.currentPosition-left*2-up] = value
+					p.options[position-left*2-up] = value
 				}
 			}
 
 			if down+2 <= 7 {
 				if right-1 >= 0 {
-					m.options[p.currentPosition-up*2+left] = value
+					p.options[position-up*2+left] = value
 				}
 				if right+1 <= 7 {
-					m.options[p.currentPosition-up*2-left] = value
+					p.options[position-up*2-left] = value
 				}
 			}
 
 			if down-2 >= 0 {
 				if right-1 >= 0 {
-					m.options[p.currentPosition+up*2+left] = value
+					p.options[position+up*2+left] = value
 				}
 				if right+1 <= 7 {
-					m.options[p.currentPosition+up*2-left] = value
+					p.options[position+up*2-left] = value
 				}
 			}
 
-			m.simpleDelete()
+			p.simpleDelete(whiteBoard)
 		case Bishop:
-			rowPos := p.currentPosition % 8
-			colPos := p.currentPosition / 8
+			rowPos := position % 8
+			colPos := position / 8
 
 			for leftUp := 1; leftUp <= colPos; leftUp++ {
-				newPosition := p.currentPosition - leftUp*9
+				newPosition := position - leftUp*9
 				if newPosition < 0 {
 					break
 				}
 				if rowPos-newPosition%8 < 0 {
 					break
 				}
-				if m.whiteBoard[newPosition] != 0 {
+				if _, ok := whiteBoard[newPosition]; ok {
 					break
 				}
-				if blackBoard[newPosition] != 0 {
-					m.options[newPosition] = value
+				if _, ok := blackBoard[newPosition]; ok {
+					p.options[newPosition] = value
 					break
 				}
 
-				m.options[newPosition] = value
+				p.options[newPosition] = value
 			}
 			for rightUp := 1; rightUp <= colPos; rightUp++ {
-				newPosition := p.currentPosition - rightUp*7
+				newPosition := position - rightUp*7
 				if newPosition%8-rowPos < 0 {
 					break
 				}
-				if m.whiteBoard[newPosition] != 0 {
+				if _, ok := whiteBoard[newPosition]; ok {
 					break
 				}
-				if blackBoard[newPosition] != 0 {
-					m.options[newPosition] = value
+				if _, ok := blackBoard[newPosition]; ok {
+					p.options[newPosition] = value
 					break
 				}
 
-				m.options[newPosition] = value
+				p.options[newPosition] = value
 			}
 			for leftDown := 1; leftDown <= 7-colPos; leftDown++ {
-				newPosition := p.currentPosition + leftDown*7
+				newPosition := position + leftDown*7
 				if rowPos-newPosition%8 < 0 {
 					break
 				}
-				if m.whiteBoard[newPosition] != 0 {
+				if _, ok := whiteBoard[newPosition]; ok {
 					break
 				}
-				if blackBoard[newPosition] != 0 {
-					m.options[newPosition] = value
+				if _, ok := blackBoard[newPosition]; ok {
+					p.options[newPosition] = value
 					break
 				}
 
-				m.options[newPosition] = value
+				p.options[newPosition] = value
 			}
 			for rightDown := 1; rightDown <= 7-colPos; rightDown++ {
-				newPosition := p.currentPosition + rightDown*9
+				newPosition := position + rightDown*9
 				if newPosition%8-rowPos < 0 {
 					break
 				}
-				if m.whiteBoard[newPosition] != 0 {
+				if _, ok := whiteBoard[newPosition]; ok {
 					break
 				}
-				if blackBoard[newPosition] != 0 {
-					m.options[newPosition] = value
+				if _, ok := blackBoard[newPosition]; ok {
+					p.options[newPosition] = value
 					break
 				}
 
-				m.options[newPosition] = value
+				p.options[newPosition] = value
 			}
 
 		case Rook:
@@ -174,25 +174,25 @@ func (p Piece) calculateOptions(whiteBoard map[*Piece]struct{}, blackBoard map[*
 	}
 }
 
-func (a *App) simpleDelete() {
+func (p *Piece) simpleDelete(board map[int]*Piece) {
 	var toRemove []int
-	for option, _ := range a.options {
-		if a.whiteBoard[option] != 0 {
+	for option, _ := range p.options {
+		if _, ok := board[option]; ok {
 			toRemove = append(toRemove, option)
 		}
 	}
 	for _, toDelete := range toRemove {
-		delete(a.options, toDelete)
+		delete(p.options, toDelete)
 	}
 }
-func (a *App) goFarDelete(piece int8) {
+func (p *Piece) goFarDelete(board map[int]*Piece) {
 	var toRemove []int
-	switch piece {
-	case 1:
-		for option := range a.options {
-			if a.whiteBoard[option] != 0 {
+	switch p.kind {
+	case Pawn:
+		for option := range p.options {
+			if _, ok := board[option]; ok {
 				toRemove = append(toRemove, option)
-				if _, ok := a.options[option-8]; ok {
+				if _, ok := p.options[option-8]; ok {
 					toRemove = append(toRemove, option-8)
 				} else {
 					break
@@ -201,8 +201,8 @@ func (a *App) goFarDelete(piece int8) {
 		}
 	}
 	for _, toDelete := range toRemove {
-		if _, ok := a.options[toDelete]; ok {
-			delete(a.options, toDelete)
+		if _, ok := p.options[toDelete]; ok {
+			delete(p.options, toDelete)
 		}
 	}
 }
