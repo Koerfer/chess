@@ -27,6 +27,18 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for leftUpKing := leftUp; leftUpKing <= 8; leftUpKing++ {
+					newPosition := position - leftUpKing*9
+					if newPosition < 0 {
+						break
+					}
+					if rowPos-newPosition%8 < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 
@@ -43,6 +55,18 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for rightUpKing := rightUp; rightUpKing <= 8; rightUpKing++ {
+					newPosition := position - rightUpKing*7
+					if newPosition < 0 {
+						break
+					}
+					if newPosition%8-rowPos < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 
@@ -59,6 +83,18 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for leftDownKing := leftDown; leftDownKing <= 8; leftDownKing++ {
+					newPosition := position + leftDownKing*7
+					if newPosition < 0 {
+						break
+					}
+					if rowPos-newPosition%8 < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 
@@ -75,6 +111,18 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for rightDownKing := rightDown; rightDownKing <= 8; rightDownKing++ {
+					newPosition := position + rightDownKing*9
+					if newPosition < 0 {
+						break
+					}
+					if newPosition%8-rowPos < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 

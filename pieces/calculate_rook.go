@@ -27,6 +27,18 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for leftKing := left; leftKing <= 8; leftKing++ {
+					newPosition := position - leftKing
+					if newPosition < 0 {
+						break
+					}
+					if rowPos-newPosition%8 < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 
@@ -43,6 +55,18 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for rightKing := right; rightKing <= 8; rightKing++ {
+					newPosition := position + rightKing
+					if newPosition < 0 {
+						break
+					}
+					if newPosition%8-rowPos < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 
@@ -59,6 +83,18 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for downKing := down; downKing <= 8; downKing++ {
+					newPosition := position + downKing*8
+					if newPosition < 0 {
+						break
+					}
+					if newPosition/8-colPos < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 
@@ -75,6 +111,18 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		}
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
+			if opponentBoard[newPosition].Kind == King {
+				for upKing := up; upKing <= 8; upKing++ {
+					newPosition := position - upKing*8
+					if newPosition < 0 {
+						break
+					}
+					if colPos-newPosition/8 < 0 {
+						break
+					}
+					forbiddenSquares[newPosition] = value
+				}
+			}
 			break
 		}
 
