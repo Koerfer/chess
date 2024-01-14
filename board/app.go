@@ -442,15 +442,49 @@ func (a *App) Update() error {
 			}
 
 			a.TakeOrPromote(position)
-			if a.selectedPiece.Kind == pieces.King || a.selectedPiece.Kind == pieces.Rook {
-				a.selectedPiece.HasBeenMoved = true
+
+			if a.selectedPiece.Kind == pieces.King && !a.selectedPiece.HasBeenMoved {
+				switch option {
+				case 2:
+					a.selectedPiece.HasBeenMoved = true
+					board[option] = a.selectedPiece
+					board[3] = board[0]
+					delete(board, a.selectedPiece.LastPosition)
+					delete(board, 0)
+					a.selectedPiece = nil
+				case 6:
+					a.selectedPiece.HasBeenMoved = true
+					board[option] = a.selectedPiece
+					board[5] = board[7]
+					delete(board, a.selectedPiece.LastPosition)
+					delete(board, 7)
+					a.selectedPiece = nil
+				case 58:
+					a.selectedPiece.HasBeenMoved = true
+					board[option] = a.selectedPiece
+					board[59] = board[56]
+					delete(board, a.selectedPiece.LastPosition)
+					delete(board, 56)
+					a.selectedPiece = nil
+				case 62:
+					a.selectedPiece.HasBeenMoved = true
+					board[option] = a.selectedPiece
+					board[61] = board[63]
+					delete(board, a.selectedPiece.LastPosition)
+					delete(board, 63)
+					a.selectedPiece = nil
+				}
+			} else {
+				if a.selectedPiece.Kind == pieces.King || a.selectedPiece.Kind == pieces.Rook {
+					a.selectedPiece.HasBeenMoved = true
+				}
+
+				board[option] = a.selectedPiece
+				delete(board, a.selectedPiece.LastPosition)
+				a.selectedPiece = nil
 			}
 
-			board[option] = a.selectedPiece
-			delete(board, a.selectedPiece.LastPosition)
-			a.selectedPiece = nil
 			a.whitesTurn = !a.whitesTurn
-
 			a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 			return nil
 		}
