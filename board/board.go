@@ -5,5 +5,8 @@ func (a *App) init() {
 		a.initiated = true
 	}()
 
-	a.initTheRest()
+	a.initWhiteBoard()
+	a.initBlackBoard()
+	a.initImages()
+	a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 }

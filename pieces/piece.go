@@ -1,10 +1,12 @@
-package board
+package pieces
 
 type Piece struct {
-	kind         PieceKind
-	white        bool
-	lastPosition int
-	options      map[int]struct{}
+	Kind         PieceKind
+	White        bool
+	LastPosition int
+	Options      map[int]struct{}
+	HasBeenMoved bool
+	Checked      bool
 }
 
 type PieceKind int8

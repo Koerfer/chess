@@ -1,6 +1,7 @@
 package board
 
 import (
+	"chess/pieces"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/jpeg"
 	"image/png"
@@ -36,183 +37,184 @@ type App struct {
 	op        ebiten.DrawImageOptions
 	initiated bool
 
-	whiteBoard map[int]*Piece
-	blackBoard map[int]*Piece
+	whiteBoard map[int]*pieces.Piece
+	blackBoard map[int]*pieces.Piece
 
 	whitesTurn    bool
-	selectedPiece *Piece
+	selectedPiece *pieces.Piece
 }
 
 func (a *App) initWhiteBoard() {
-	a.whiteBoard = make(map[int]*Piece)
-	a.whiteBoard[56] = &Piece{
-		kind:    Rook,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whitesTurn = true
+	a.whiteBoard = make(map[int]*pieces.Piece)
+	a.whiteBoard[56] = &pieces.Piece{
+		Kind:    pieces.Rook,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[57] = &Piece{
-		kind:    Knight,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[57] = &pieces.Piece{
+		Kind:    pieces.Knight,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[58] = &Piece{
-		kind:    Bishop,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[58] = &pieces.Piece{
+		Kind:    pieces.Bishop,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[59] = &Piece{
-		kind:    Queen,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[59] = &pieces.Piece{
+		Kind:    pieces.Queen,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[60] = &Piece{
-		kind:    King,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[60] = &pieces.Piece{
+		Kind:    pieces.King,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[61] = &Piece{
-		kind:    Bishop,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[61] = &pieces.Piece{
+		Kind:    pieces.Bishop,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[62] = &Piece{
-		kind:    Knight,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[62] = &pieces.Piece{
+		Kind:    pieces.Knight,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[63] = &Piece{
-		kind:    Rook,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[63] = &pieces.Piece{
+		Kind:    pieces.Rook,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[48] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[48] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[49] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[49] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[50] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[50] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[51] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[51] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[52] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[52] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[53] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[53] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[54] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[54] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
-	a.whiteBoard[55] = &Piece{
-		kind:    Pawn,
-		white:   true,
-		options: make(map[int]struct{}),
+	a.whiteBoard[55] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   true,
+		Options: make(map[int]struct{}),
 	}
 }
 
 func (a *App) initBlackBoard() {
-	a.blackBoard = make(map[int]*Piece)
-	a.blackBoard[0] = &Piece{
-		kind:    Rook,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard = make(map[int]*pieces.Piece)
+	a.blackBoard[0] = &pieces.Piece{
+		Kind:    pieces.Rook,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[1] = &Piece{
-		kind:    Knight,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[1] = &pieces.Piece{
+		Kind:    pieces.Knight,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[2] = &Piece{
-		kind:    Bishop,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[2] = &pieces.Piece{
+		Kind:    pieces.Bishop,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[3] = &Piece{
-		kind:    Queen,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[3] = &pieces.Piece{
+		Kind:    pieces.Queen,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[4] = &Piece{
-		kind:    King,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[4] = &pieces.Piece{
+		Kind:    pieces.King,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[5] = &Piece{
-		kind:    Bishop,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[5] = &pieces.Piece{
+		Kind:    pieces.Bishop,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[6] = &Piece{
-		kind:    Knight,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[6] = &pieces.Piece{
+		Kind:    pieces.Knight,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[7] = &Piece{
-		kind:    Rook,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[7] = &pieces.Piece{
+		Kind:    pieces.Rook,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[8] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[8] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[9] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[9] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[10] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[10] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[11] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[11] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[12] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[12] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[13] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[13] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[14] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[14] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
-	a.blackBoard[15] = &Piece{
-		kind:    Pawn,
-		white:   false,
-		options: make(map[int]struct{}),
+	a.blackBoard[15] = &pieces.Piece{
+		Kind:    pieces.Pawn,
+		White:   false,
+		Options: make(map[int]struct{}),
 	}
 }
 
 func (a *App) initImages() {
-	chessboard, err := os.Open("board/chessboard.jpeg")
+	chessboard, err := os.Open("board/images/chessboard.jpeg")
 	if err != nil {
 		log.Fatalf("unable to open chessboard image: %v", err)
 	}
@@ -222,7 +224,7 @@ func (a *App) initImages() {
 	}
 	boardImage := ebiten.NewImageFromImage(jpegBoard)
 
-	option, err := os.Open("board/option.png")
+	option, err := os.Open("board/images/option.png")
 	if err != nil {
 		log.Fatalf("unable to open option image: %v", err)
 	}
@@ -232,67 +234,67 @@ func (a *App) initImages() {
 	}
 	optionImage := ebiten.NewImageFromImage(optionDecoded)
 
-	whitePawn, err := os.Open("board/white_pawn.png")
+	whitePawn, err := os.Open("board/images/white_pawn.png")
 	if err != nil {
-		log.Fatalf("unable to open white pawn image: %v", err)
+		log.Fatalf("unable to open White pawn image: %v", err)
 	}
 	whitePawnDecoded, err := png.Decode(whitePawn)
 	if err != nil {
-		log.Fatalf("unable to decode white pawn image: %v", err)
+		log.Fatalf("unable to decode White pawn image: %v", err)
 	}
 	whitePawnImage := ebiten.NewImageFromImage(whitePawnDecoded)
 
-	whiteKing, err := os.Open("board/white_king.png")
+	whiteKing, err := os.Open("board/images/white_king.png")
 	if err != nil {
-		log.Fatalf("unable to open white king image: %v", err)
+		log.Fatalf("unable to open White king image: %v", err)
 	}
 	whiteKingDecoded, err := png.Decode(whiteKing)
 	if err != nil {
-		log.Fatalf("unable to decode white king image: %v", err)
+		log.Fatalf("unable to decode White king image: %v", err)
 	}
 	whiteKingImage := ebiten.NewImageFromImage(whiteKingDecoded)
 
-	whiteRook, err := os.Open("board/white_rook.png")
+	whiteRook, err := os.Open("board/images/white_rook.png")
 	if err != nil {
-		log.Fatalf("unable to open white rook image: %v", err)
+		log.Fatalf("unable to open White rook image: %v", err)
 	}
 	whiteRookDecoded, err := png.Decode(whiteRook)
 	if err != nil {
-		log.Fatalf("unable to decode white pawn image: %v", err)
+		log.Fatalf("unable to decode White pawn image: %v", err)
 	}
 	whiteRookImage := ebiten.NewImageFromImage(whiteRookDecoded)
 
-	whiteQueen, err := os.Open("board/white_queen.png")
+	whiteQueen, err := os.Open("board/images/white_queen.png")
 	if err != nil {
-		log.Fatalf("unable to open white queen image: %v", err)
+		log.Fatalf("unable to open White queen image: %v", err)
 	}
 	whiteQueenDecoded, err := png.Decode(whiteQueen)
 	if err != nil {
-		log.Fatalf("unable to decode white queen image: %v", err)
+		log.Fatalf("unable to decode White queen image: %v", err)
 	}
 	whiteQueenImage := ebiten.NewImageFromImage(whiteQueenDecoded)
 
-	whiteKnight, err := os.Open("board/white_knight.png")
+	whiteKnight, err := os.Open("board/images/white_knight.png")
 	if err != nil {
-		log.Fatalf("unable to open white knight image: %v", err)
+		log.Fatalf("unable to open White knight image: %v", err)
 	}
 	whiteKnightDecoded, err := png.Decode(whiteKnight)
 	if err != nil {
-		log.Fatalf("unable to decode white knight image: %v", err)
+		log.Fatalf("unable to decode White knight image: %v", err)
 	}
 	whiteKnightImage := ebiten.NewImageFromImage(whiteKnightDecoded)
 
-	whiteBishop, err := os.Open("board/white_bishop.png")
+	whiteBishop, err := os.Open("board/images/white_bishop.png")
 	if err != nil {
-		log.Fatalf("unable to open white bishop image: %v", err)
+		log.Fatalf("unable to open White bishop image: %v", err)
 	}
 	whiteBishopDecoded, err := png.Decode(whiteBishop)
 	if err != nil {
-		log.Fatalf("unable to decode white bishop image: %v", err)
+		log.Fatalf("unable to decode White bishop image: %v", err)
 	}
 	whiteBishopImage := ebiten.NewImageFromImage(whiteBishopDecoded)
 
-	blackPawn, err := os.Open("board/black_pawn.png")
+	blackPawn, err := os.Open("board/images/black_pawn.png")
 	if err != nil {
 		log.Fatalf("unable to open black pawn image: %v", err)
 	}
@@ -302,7 +304,7 @@ func (a *App) initImages() {
 	}
 	blackPawnImage := ebiten.NewImageFromImage(blackPawnDecoded)
 
-	blackKing, err := os.Open("board/black_king.png")
+	blackKing, err := os.Open("board/images/black_king.png")
 	if err != nil {
 		log.Fatalf("unable to open black king image: %v", err)
 	}
@@ -312,7 +314,7 @@ func (a *App) initImages() {
 	}
 	blackKingImage := ebiten.NewImageFromImage(blackKingDecoded)
 
-	blackRook, err := os.Open("board/black_rook.png")
+	blackRook, err := os.Open("board/images/black_rook.png")
 	if err != nil {
 		log.Fatalf("unable to open black rook image: %v", err)
 	}
@@ -322,7 +324,7 @@ func (a *App) initImages() {
 	}
 	blackRookImage := ebiten.NewImageFromImage(blackRookDecoded)
 
-	blackQueen, err := os.Open("board/black_queen.png")
+	blackQueen, err := os.Open("board/images/black_queen.png")
 	if err != nil {
 		log.Fatalf("unable to open black queen image: %v", err)
 	}
@@ -332,7 +334,7 @@ func (a *App) initImages() {
 	}
 	blackQueenImage := ebiten.NewImageFromImage(blackQueenDecoded)
 
-	blackKnight, err := os.Open("board/black_knight.png")
+	blackKnight, err := os.Open("board/images/black_knight.png")
 	if err != nil {
 		log.Fatalf("unable to open black knight image: %v", err)
 	}
@@ -342,7 +344,7 @@ func (a *App) initImages() {
 	}
 	blackKnightImage := ebiten.NewImageFromImage(blackKnightDecoded)
 
-	blackBishop, err := os.Open("board/black_bishop.png")
+	blackBishop, err := os.Open("board/images/black_bishop.png")
 	if err != nil {
 		log.Fatalf("unable to open black bishop image: %v", err)
 	}
@@ -402,14 +404,6 @@ func (a *App) initImages() {
 	bbI.DrawImage(blackBishopImage, op)
 }
 
-func (a *App) initTheRest() {
-	a.initWhiteBoard()
-	a.initBlackBoard()
-
-	a.whitesTurn = true
-	a.initImages()
-}
-
 func (a *App) Update() error {
 	if !a.initiated {
 		a.init()
@@ -425,7 +419,7 @@ func (a *App) Update() error {
 			return nil
 		}
 
-		var board map[int]*Piece
+		var board map[int]*pieces.Piece
 		switch a.whitesTurn {
 		case true:
 			board = a.whiteBoard
@@ -434,8 +428,7 @@ func (a *App) Update() error {
 		}
 
 		if piece, ok := board[position]; ok {
-			piece.calculateOptions(a.whiteBoard, a.blackBoard, position)
-			piece.lastPosition = position
+			piece.LastPosition = position
 			a.selectedPiece = piece
 		}
 
@@ -443,19 +436,86 @@ func (a *App) Update() error {
 			return nil
 		}
 
-		for option := range a.selectedPiece.options {
+		for option := range a.selectedPiece.Options {
 			if position != option {
 				continue
 			}
 
+			a.TakeOrPromote(position)
+			if a.selectedPiece.Kind == pieces.King || a.selectedPiece.Kind == pieces.Rook {
+				a.selectedPiece.HasBeenMoved = true
+			}
+
 			board[option] = a.selectedPiece
-			delete(board, a.selectedPiece.lastPosition)
+			delete(board, a.selectedPiece.LastPosition)
 			a.selectedPiece = nil
+			a.whitesTurn = !a.whitesTurn
+
+			a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 			return nil
 		}
 	}
 
 	return nil
+}
+
+func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece) {
+	forbiddenSquares := make(map[int]struct{})
+
+	switch a.whitesTurn {
+	case true:
+		for position, piece := range blackBoard {
+			forbiddenCaptures := piece.CalculateOptions(whiteBoard, blackBoard, position, nil)
+			for forbidden := range forbiddenCaptures {
+				forbiddenSquares[forbidden] = struct{}{}
+			}
+			if piece.Kind != pieces.Pawn {
+				for forbidden := range piece.Options {
+					forbiddenSquares[forbidden] = struct{}{}
+				}
+			}
+		}
+
+		for position, piece := range whiteBoard {
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares)
+		}
+	case false:
+		for position, piece := range whiteBoard {
+			forbiddenCaptures := piece.CalculateOptions(whiteBoard, blackBoard, position, nil)
+			for forbidden := range forbiddenCaptures {
+				forbiddenSquares[forbidden] = struct{}{}
+			}
+			if piece.Kind != pieces.Pawn {
+				for forbidden := range piece.Options {
+					forbiddenSquares[forbidden] = struct{}{}
+				}
+			}
+		}
+
+		for position, piece := range blackBoard {
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares)
+		}
+	}
+
+}
+
+func (a *App) TakeOrPromote(position int) {
+	if a.selectedPiece.Kind == pieces.Pawn {
+		end := 7
+		if a.selectedPiece.White == true {
+			end = 0
+		}
+		if position/8 == end {
+			a.selectedPiece.Kind = pieces.Queen // todo: add convert to better Piece logic
+		}
+	}
+
+	switch a.whitesTurn {
+	case true:
+		delete(a.blackBoard, position)
+	case false:
+		delete(a.whiteBoard, position)
+	}
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (int, int) {
