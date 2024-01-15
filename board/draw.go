@@ -16,6 +16,13 @@ func (a *App) drawOptions(screen *ebiten.Image, piece *pieces.Piece) {
 		screen.DrawImage(optionI, &a.op)
 	}
 
+	for option := range piece.EnPassantOptions {
+		a.op.GeoM.Reset()
+
+		a.op.GeoM.Translate(108.75*float64(option%8), 106.125*math.Floor(float64(option/8)))
+		screen.DrawImage(optionI, &a.op)
+	}
+
 }
 
 func (a *App) Draw(screen *ebiten.Image) {

@@ -1,7 +1,8 @@
 package pieces
 
-func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int) map[int]struct{} {
+func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int) (map[int]struct{}, bool) {
 	forbiddenSquares := make(map[int]struct{})
+	var check bool
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
@@ -28,6 +29,7 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
 			if opponentBoard[newPosition].Kind == King {
+				check = true
 				for leftUpKing := leftUp; leftUpKing <= 8; leftUpKing++ {
 					newPosition := position - leftUpKing*9
 					if newPosition < 0 {
@@ -56,6 +58,7 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
 			if opponentBoard[newPosition].Kind == King {
+				check = true
 				for rightUpKing := rightUp; rightUpKing <= 8; rightUpKing++ {
 					newPosition := position - rightUpKing*7
 					if newPosition < 0 {
@@ -84,6 +87,7 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
 			if opponentBoard[newPosition].Kind == King {
+				check = true
 				for leftDownKing := leftDown; leftDownKing <= 8; leftDownKing++ {
 					newPosition := position + leftDownKing*7
 					if newPosition < 0 {
@@ -112,6 +116,7 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		if _, ok := opponentBoard[newPosition]; ok {
 			p.Options[newPosition] = value
 			if opponentBoard[newPosition].Kind == King {
+				check = true
 				for rightDownKing := rightDown; rightDownKing <= 8; rightDownKing++ {
 					newPosition := position + rightDownKing*9
 					if newPosition < 0 {
@@ -129,5 +134,5 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 		p.Options[newPosition] = value
 	}
 
-	return forbiddenSquares
+	return forbiddenSquares, check
 }

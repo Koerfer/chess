@@ -2,26 +2,26 @@ package pieces
 
 var value struct{}
 
-func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}) map[int]struct{} {
+func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) (map[int]struct{}, bool) {
 	p.Options = make(map[int]struct{})
 	switch p.Kind {
 	case Pawn:
-		return p.calculatePawnMoves(whiteBoard, blackBoard, position)
+		return p.calculatePawnMoves(whiteBoard, blackBoard, position, fixLastPosition), false
 	case Knight:
-		return p.calculateKnightMoves(whiteBoard, blackBoard, position)
+		return p.calculateKnightMoves(whiteBoard, blackBoard, position), false
 	case Bishop:
 		return p.calculateBishopMoves(whiteBoard, blackBoard, position)
 	case Rook:
-		return p.calculateRookMoves(whiteBoard, blackBoard, position)
+		return p.calculateRookMoves(whiteBoard, blackBoard, position), false
 	case Queen:
-		forbiddenDiagonal := p.calculateBishopMoves(whiteBoard, blackBoard, position)
+		forbiddenDiagonal, check := p.calculateBishopMoves(whiteBoard, blackBoard, position)
 		forbidden := p.calculateRookMoves(whiteBoard, blackBoard, position)
-		return mergeMaps(forbiddenDiagonal, forbidden)
+		return mergeMaps(forbiddenDiagonal, forbidden), check
 	case King:
-		return p.calculateKingMoves(whiteBoard, blackBoard, position, forbiddenSquares)
+		return p.calculateKingMoves(whiteBoard, blackBoard, position, forbiddenSquares), false
 	}
 
-	return nil
+	return nil, false
 }
 
 func mergeMaps(m1 map[int]struct{}, m2 map[int]struct{}) map[int]struct{} {

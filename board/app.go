@@ -88,44 +88,52 @@ func (a *App) initWhiteBoard() {
 		Options: make(map[int]struct{}),
 	}
 	a.whiteBoard[48] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.whiteBoard[49] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.whiteBoard[50] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.whiteBoard[51] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.whiteBoard[52] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.whiteBoard[53] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.whiteBoard[54] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.whiteBoard[55] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            true,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 }
 
@@ -172,44 +180,52 @@ func (a *App) initBlackBoard() {
 		Options: make(map[int]struct{}),
 	}
 	a.blackBoard[8] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.blackBoard[9] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.blackBoard[10] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.blackBoard[11] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.blackBoard[12] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.blackBoard[13] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.blackBoard[14] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 	a.blackBoard[15] = &pieces.Piece{
-		Kind:    pieces.Pawn,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:             pieces.Pawn,
+		White:            false,
+		Options:          make(map[int]struct{}),
+		EnPassantOptions: make(map[int]int),
 	}
 }
 
@@ -436,6 +452,27 @@ func (a *App) Update() error {
 			return nil
 		}
 
+		for option, take := range a.selectedPiece.EnPassantOptions {
+			if position != option {
+				continue
+			}
+
+			switch a.whitesTurn {
+			case true:
+				delete(a.blackBoard, take)
+			case false:
+				delete(a.whiteBoard, take)
+			}
+
+			board[option] = a.selectedPiece
+			delete(board, a.selectedPiece.LastPosition)
+			a.selectedPiece = nil
+
+			a.whitesTurn = !a.whitesTurn
+			a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+			return nil
+		}
+
 		for option := range a.selectedPiece.Options {
 			if position != option {
 				continue
@@ -499,7 +536,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 	switch a.whitesTurn {
 	case true:
 		for position, piece := range blackBoard {
-			forbiddenCaptures := piece.CalculateOptions(whiteBoard, blackBoard, position, nil)
+			forbiddenCaptures, _ := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
@@ -511,11 +548,11 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 		}
 
 		for position, piece := range whiteBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares)
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
 		}
 	case false:
 		for position, piece := range whiteBoard {
-			forbiddenCaptures := piece.CalculateOptions(whiteBoard, blackBoard, position, nil)
+			forbiddenCaptures, _ := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
@@ -527,7 +564,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 		}
 
 		for position, piece := range blackBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares)
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
 		}
 	}
 
