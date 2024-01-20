@@ -2,6 +2,7 @@ package board
 
 import (
 	"chess/pieces"
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/jpeg"
 	"image/png"
@@ -444,6 +445,7 @@ func (a *App) Update() error {
 		case false:
 			board = a.blackBoard
 		}
+		win(board, a.whitesTurn)
 
 		if piece, ok := board[position]; ok {
 			piece.LastPosition = position
@@ -632,6 +634,21 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 		}
 	}
 
+}
+
+func win(board map[int]*pieces.Piece, colour bool) bool {
+	for _, piece := range board {
+		if len(piece.Options) != 0 {
+			return false
+		}
+	}
+
+	if colour {
+		fmt.Println("Black wins")
+	} else {
+		fmt.Println("White wins")
+	}
+	return true
 }
 
 func (a *App) TakeOrPromote(position int) {
