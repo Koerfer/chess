@@ -68,9 +68,10 @@ func (a *App) initWhiteBoard() {
 		Options: make(map[int]struct{}),
 	}
 	a.whiteBoard[60] = &pieces.Piece{
-		Kind:    pieces.King,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:           pieces.King,
+		White:          true,
+		Options:        make(map[int]struct{}),
+		CheckingPieces: make(map[int]*pieces.Piece),
 	}
 	a.whiteBoard[61] = &pieces.Piece{
 		Kind:    pieces.Bishop,
@@ -160,9 +161,10 @@ func (a *App) initBlackBoard() {
 		Options: make(map[int]struct{}),
 	}
 	a.blackBoard[4] = &pieces.Piece{
-		Kind:    pieces.King,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:           pieces.King,
+		White:          false,
+		Options:        make(map[int]struct{}),
+		CheckingPieces: make(map[int]*pieces.Piece),
 	}
 	a.blackBoard[5] = &pieces.Piece{
 		Kind:    pieces.Bishop,
@@ -553,7 +555,6 @@ func (a *App) castle(option int, board map[int]*pieces.Piece) bool {
 
 func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece) {
 	forbiddenSquares := make(map[int]struct{})
-	forbiddenCaptures := make(map[int]struct{})
 	var check bool
 
 	for _, piece := range whiteBoard {
@@ -563,10 +564,14 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 		piece.PinnedToKing = false
 	}
 
+	var checkingPieces map[int]*pieces.Piece
+	var kingPosition int
+
 	switch a.whitesTurn {
 	case true:
 		for position, piece := range blackBoard {
-			forbiddenCaptures, check = piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false, false)
+			forbiddenCaptures, tmpCheck := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
+			check = check || tmpCheck
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
@@ -574,15 +579,30 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 				for forbidden := range piece.Options {
 					forbiddenSquares[forbidden] = struct{}{}
 				}
+			}
+			if piece.Kind == pieces.King {
+				piece.CheckingPieces = make(map[int]*pieces.Piece)
 			}
 		}
 
 		for position, piece := range whiteBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true, check)
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
+			if check && piece.Kind == pieces.King {
+				checkingPieces = piece.CheckingPieces
+				kingPosition = position
+			}
+		}
+		if check {
+			for _, piece := range whiteBoard {
+				if piece.Kind != pieces.King {
+					piece.RemoveOptionsDueToCheck(kingPosition, checkingPieces)
+				}
+			}
 		}
 	case false:
 		for position, piece := range whiteBoard {
-			forbiddenCaptures, check = piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false, false)
+			forbiddenCaptures, tmpCheck := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
+			check = check || tmpCheck
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
@@ -590,11 +610,25 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 				for forbidden := range piece.Options {
 					forbiddenSquares[forbidden] = struct{}{}
 				}
+			}
+			if piece.Kind == pieces.King {
+				piece.CheckingPieces = make(map[int]*pieces.Piece)
 			}
 		}
 
 		for position, piece := range blackBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true, check)
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
+			if check && piece.Kind == pieces.King {
+				checkingPieces = piece.CheckingPieces
+				kingPosition = position
+			}
+		}
+		if check {
+			for _, piece := range blackBoard {
+				if piece.Kind != pieces.King {
+					piece.RemoveOptionsDueToCheck(kingPosition, checkingPieces)
+				}
+			}
 		}
 	}
 

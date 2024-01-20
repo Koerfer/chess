@@ -2,11 +2,8 @@ package pieces
 
 var value struct{}
 
-func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool, check bool) (map[int]struct{}, bool) {
+func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) (map[int]struct{}, bool) {
 	p.Options = make(map[int]struct{})
-	if check {
-
-	}
 
 	switch p.Kind {
 	case Pawn:
@@ -44,26 +41,5 @@ func (p *Piece) simpleDelete(board map[int]*Piece) {
 	}
 	for _, toDelete := range toRemove {
 		delete(p.Options, toDelete)
-	}
-}
-func (p *Piece) goFarDelete(board map[int]*Piece) {
-	var toRemove []int
-	switch p.Kind {
-	case Pawn:
-		for option := range p.Options {
-			if _, ok := board[option]; ok {
-				toRemove = append(toRemove, option)
-				if _, ok := p.Options[option-8]; ok {
-					toRemove = append(toRemove, option-8)
-				} else {
-					break
-				}
-			}
-		}
-	}
-	for _, toDelete := range toRemove {
-		if _, ok := p.Options[toDelete]; ok {
-			delete(p.Options, toDelete)
-		}
 	}
 }
