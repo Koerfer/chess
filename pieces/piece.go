@@ -8,6 +8,10 @@ type Piece struct {
 	EnPassantOptions map[int]int
 	HasBeenMoved     bool
 	Checked          bool
+	CheckingPieces   map[int]*Piece
+	PinnedToKing     bool
+	PinnedByPosition int
+	PinnedByPiece    *Piece
 }
 
 type PieceKind int8

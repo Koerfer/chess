@@ -47,8 +47,10 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 	switch p.White {
 	case true:
 		p.simpleDelete(whiteBoard)
+		p.calculatePinnedOptions(position)
 	case false:
 		p.simpleDelete(blackBoard)
+		p.calculatePinnedOptions(position)
 	}
 
 	return forbiddenSquares

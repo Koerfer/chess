@@ -70,18 +70,22 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	if position/8 == (endPosition + 6*offsetMultiplier) {
 		if _, ok := opponentBoard[position-16*offsetMultiplier]; ok {
 			p.Options[position-8*offsetMultiplier] = value
+			p.calculatePinnedOptions(position)
 			p.simpleDelete(myBoard)
 			return forbiddenSquares
 		}
 		p.Options[position-8*offsetMultiplier] = value
 		p.Options[position-16*offsetMultiplier] = value
+		p.calculatePinnedOptions(position)
 		p.goFarDelete(myBoard)
 		return forbiddenSquares
 	}
 	if _, ok := opponentBoard[position-8*offsetMultiplier]; ok {
+		p.calculatePinnedOptions(position)
 		return forbiddenSquares
 	}
 	p.Options[position-8*offsetMultiplier] = value
+	p.calculatePinnedOptions(position)
 	p.simpleDelete(myBoard)
 	return forbiddenSquares
 }

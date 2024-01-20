@@ -2,8 +2,12 @@ package pieces
 
 var value struct{}
 
-func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) (map[int]struct{}, bool) {
+func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool, check bool) (map[int]struct{}, bool) {
 	p.Options = make(map[int]struct{})
+	if check {
+
+	}
+
 	switch p.Kind {
 	case Pawn:
 		return p.calculatePawnMoves(whiteBoard, blackBoard, position, fixLastPosition), false
@@ -12,11 +16,11 @@ func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*
 	case Bishop:
 		return p.calculateBishopMoves(whiteBoard, blackBoard, position)
 	case Rook:
-		return p.calculateRookMoves(whiteBoard, blackBoard, position), false
+		return p.calculateRookMoves(whiteBoard, blackBoard, position)
 	case Queen:
-		forbiddenDiagonal, check := p.calculateBishopMoves(whiteBoard, blackBoard, position)
-		forbidden := p.calculateRookMoves(whiteBoard, blackBoard, position)
-		return mergeMaps(forbiddenDiagonal, forbidden), check
+		forbiddenDiagonal, check1 := p.calculateBishopMoves(whiteBoard, blackBoard, position)
+		forbidden, check2 := p.calculateRookMoves(whiteBoard, blackBoard, position)
+		return mergeMaps(forbiddenDiagonal, forbidden), check1 || check2
 	case King:
 		return p.calculateKingMoves(whiteBoard, blackBoard, position, forbiddenSquares), false
 	}

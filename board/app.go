@@ -553,11 +553,20 @@ func (a *App) castle(option int, board map[int]*pieces.Piece) bool {
 
 func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece) {
 	forbiddenSquares := make(map[int]struct{})
+	forbiddenCaptures := make(map[int]struct{})
+	var check bool
+
+	for _, piece := range whiteBoard {
+		piece.PinnedToKing = false
+	}
+	for _, piece := range blackBoard {
+		piece.PinnedToKing = false
+	}
 
 	switch a.whitesTurn {
 	case true:
 		for position, piece := range blackBoard {
-			forbiddenCaptures, _ := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
+			forbiddenCaptures, check = piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false, false)
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
@@ -569,11 +578,11 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 		}
 
 		for position, piece := range whiteBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true, check)
 		}
 	case false:
 		for position, piece := range whiteBoard {
-			forbiddenCaptures, _ := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
+			forbiddenCaptures, check = piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false, false)
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
@@ -585,7 +594,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 		}
 
 		for position, piece := range blackBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
+			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true, check)
 		}
 	}
 
