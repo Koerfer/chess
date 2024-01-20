@@ -42,7 +42,9 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			p.Options[position+up*2-left] = value
 		}
 	}
-	forbiddenSquares = p.Options
+	for option := range p.Options {
+		forbiddenSquares[option] = value
+	}
 
 	switch p.White {
 	case true:
