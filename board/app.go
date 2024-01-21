@@ -1,6 +1,7 @@
 package board
 
 import (
+	"chess/engine"
 	"chess/pieces"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -39,6 +40,8 @@ type App struct {
 
 	whitesTurn    bool
 	selectedPiece *pieces.Piece
+
+	engine engine.Engine
 }
 
 func (a *App) Update() error {
@@ -63,7 +66,34 @@ func (a *App) Update() error {
 		case false:
 			board = a.blackBoard
 		}
-		win(board, a.whitesTurn)
+		if win(board, a.whitesTurn) {
+			return nil
+		}
+
+		if !a.whitesTurn {
+			option := a.engine.Start(a.whiteBoard, a.blackBoard)
+			a.selectedPiece = option.Piece
+			a.TakeOrPromote(option.MoveTo)
+
+			if a.selectedPiece.Kind == pieces.King && !a.selectedPiece.HasBeenMoved {
+				castled := a.castle(option.MoveTo, board)
+				if castled {
+					return nil
+				}
+			}
+
+			if a.selectedPiece.Kind == pieces.King || a.selectedPiece.Kind == pieces.Rook {
+				a.selectedPiece.HasBeenMoved = true
+			}
+
+			board[option.MoveTo] = a.selectedPiece
+			delete(board, a.selectedPiece.LastPosition)
+			a.selectedPiece = nil
+
+			a.whitesTurn = !a.whitesTurn
+			a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+			return nil
+		}
 
 		if piece, ok := board[position]; ok {
 			piece.LastPosition = position

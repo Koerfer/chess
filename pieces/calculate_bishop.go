@@ -68,6 +68,9 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 	}
 	for rightUp := 1; rightUp <= colPos; rightUp++ {
 		newPosition := position - rightUp*7
+		if newPosition < 0 {
+			break
+		}
 		if newPosition%8-rowPos < 0 {
 			break
 		}
@@ -117,6 +120,9 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 	}
 	for leftDown := 1; leftDown <= 7-colPos; leftDown++ {
 		newPosition := position + leftDown*7
+		if newPosition < 0 {
+			break
+		}
 		if rowPos-newPosition%8 < 0 {
 			break
 		}
@@ -166,6 +172,9 @@ func (p *Piece) calculateBishopMoves(whiteBoard map[int]*Piece, blackBoard map[i
 	}
 	for rightDown := 1; rightDown <= 7-colPos; rightDown++ {
 		newPosition := position + rightDown*9
+		if newPosition < 0 {
+			break
+		}
 		if newPosition%8-rowPos < 0 {
 			break
 		}

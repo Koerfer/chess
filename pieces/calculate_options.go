@@ -7,9 +7,9 @@ func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*
 
 	switch p.Kind {
 	case Pawn:
-		return p.calculatePawnMoves(whiteBoard, blackBoard, position, fixLastPosition), false
+		return p.calculatePawnMoves(whiteBoard, blackBoard, position, fixLastPosition)
 	case Knight:
-		return p.calculateKnightMoves(whiteBoard, blackBoard, position), false
+		return p.calculateKnightMoves(whiteBoard, blackBoard, position)
 	case Bishop:
 		return p.calculateBishopMoves(whiteBoard, blackBoard, position)
 	case Rook:

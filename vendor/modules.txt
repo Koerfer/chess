@@ -64,6 +64,12 @@ github.com/jezek/xgb
 github.com/jezek/xgb/randr
 github.com/jezek/xgb/render
 github.com/jezek/xgb/xproto
+# github.com/kingledion/go-tools v0.6.0
+## explicit; go 1.18
+github.com/kingledion/go-tools/tree
+# github.com/phf/go-queue v0.0.0-20170504031614-9abe38d0371d
+## explicit
+github.com/phf/go-queue/queue
 # golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56
 ## explicit; go 1.12
 golang.org/x/exp/shiny/driver/gldriver

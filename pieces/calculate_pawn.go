@@ -1,11 +1,12 @@
 package pieces
 
-func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, fixLastPosition bool) map[int]struct{} {
+func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, fixLastPosition bool) (map[int]struct{}, bool) {
 	forbiddenSquares := make(map[int]struct{})
 	p.EnPassantOptions = make(map[int]int)
 	if fixLastPosition {
 		p.LastPosition = position
 	}
+	var check bool
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
@@ -26,6 +27,9 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		forbiddenSquares[captureOption] = value
 		if _, ok := opponentBoard[captureOption]; ok { // if black Piece up right
 			p.Options[captureOption] = value // add capture move
+			if opponentBoard[captureOption].Kind == King {
+				check = true
+			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {
 			if piece, ok := opponentBoard[position+1]; ok && piece.Kind == Pawn && piece.LastPosition == (endPosition+offsetMultiplier)*8+(position+1)%8 {
@@ -37,6 +41,9 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		forbiddenSquares[captureOption] = value
 		if _, ok := opponentBoard[captureOption]; ok { // if black Piece up left
 			p.Options[captureOption] = value // add capture move
+			if opponentBoard[captureOption].Kind == King {
+				check = true
+			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {
 			if piece, ok := opponentBoard[position-1]; ok && piece.Kind == Pawn && piece.LastPosition == (endPosition+offsetMultiplier)*8+(position-1)%8 {
@@ -48,6 +55,9 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		forbiddenSquares[captureOption] = value
 		if _, ok := opponentBoard[captureOption]; ok { // if black Piece up right
 			p.Options[captureOption] = value // add capture move
+			if opponentBoard[captureOption].Kind == King {
+				check = true
+			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {
 			if piece, ok := opponentBoard[position+1]; ok && piece.Kind == Pawn && piece.LastPosition == (endPosition+offsetMultiplier)*8+(position+1)%8 {
@@ -59,6 +69,9 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 		forbiddenSquares[captureOption] = value
 		if _, ok := opponentBoard[captureOption]; ok { // if black Piece up left
 			p.Options[captureOption] = value // add capture move
+			if opponentBoard[captureOption].Kind == King {
+				check = true
+			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {
 			if piece, ok := opponentBoard[position-1]; ok && piece.Kind == Pawn && piece.LastPosition == (endPosition+offsetMultiplier)*8+(position-1)%8 {
@@ -74,7 +87,7 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 			p.Options[oneUp] = value
 			p.calculatePinnedOptions(position)
 			p.simpleDelete(myBoard)
-			return forbiddenSquares
+			return forbiddenSquares, check
 		}
 		if _, ok := myBoard[oneUp]; !ok {
 			if _, ok := opponentBoard[oneUp]; !ok {
@@ -88,14 +101,14 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 
 		}
 		p.calculatePinnedOptions(position)
-		return forbiddenSquares
+		return forbiddenSquares, check
 	}
 	if _, ok := opponentBoard[oneUp]; ok {
 		p.calculatePinnedOptions(position)
-		return forbiddenSquares
+		return forbiddenSquares, check
 	}
 	p.Options[position-8*offsetMultiplier] = value
 	p.calculatePinnedOptions(position)
 	p.simpleDelete(myBoard)
-	return forbiddenSquares
+	return forbiddenSquares, check
 }

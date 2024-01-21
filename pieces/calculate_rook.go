@@ -68,6 +68,9 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	}
 	for right := 1; right <= 8; right++ {
 		newPosition := position + right
+		if newPosition < 0 {
+			break
+		}
 		if newPosition%8-rowPos < 0 {
 			break
 		}
@@ -117,6 +120,9 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	}
 	for down := 1; down <= 8; down++ {
 		newPosition := position + down*8
+		if newPosition < 0 {
+			break
+		}
 		if newPosition/8-colPos < 0 {
 			break
 		}
@@ -166,6 +172,9 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	}
 	for up := 1; up <= 8; up++ {
 		newPosition := position - up*8
+		if newPosition < 0 {
+			break
+		}
 		if colPos-newPosition/8 < 0 {
 			break
 		}
