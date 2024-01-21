@@ -74,6 +74,16 @@ func (a *App) Update() error {
 			option := a.engine.Start(a.whiteBoard, a.blackBoard)
 			a.selectedPiece = option.Piece
 			a.TakeOrPromote(option.MoveTo)
+			if option.EnPassant != 0 {
+				var opponentBoard map[int]*pieces.Piece
+				switch a.whitesTurn {
+				case false:
+					opponentBoard = a.whiteBoard
+				case true:
+					opponentBoard = a.blackBoard
+				}
+				delete(opponentBoard, option.EnPassant)
+			}
 
 			if a.selectedPiece.Kind == pieces.King && !a.selectedPiece.HasBeenMoved {
 				castled := a.castle(option.MoveTo, board)

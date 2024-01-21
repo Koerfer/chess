@@ -80,5 +80,4 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 			}
 		}
 	}
-
 }
