@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"math"
+	"time"
 )
 
 const (
@@ -51,6 +52,7 @@ func (a *App) Update() error {
 	a.touchIDs = ebiten.AppendTouchIDs(a.touchIDs[:0])
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		time.Sleep(100 * time.Millisecond)
 		x, y := ebiten.CursorPosition()
 		X := int(math.Floor(float64(x) / 108.75))
 		Y := int(math.Floor(float64(y) / 106.125))
@@ -164,9 +166,7 @@ func (a *App) normal(position int, board map[int]*pieces.Piece) bool {
 			}
 		}
 
-		if a.selectedPiece.Kind == pieces.King || a.selectedPiece.Kind == pieces.Rook {
-			a.selectedPiece.HasBeenMoved = true
-		}
+		a.selectedPiece.HasBeenMoved = true
 
 		board[option] = a.selectedPiece
 		delete(board, a.selectedPiece.LastPosition)

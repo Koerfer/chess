@@ -11,18 +11,18 @@ type Engine struct {
 	blackBoard map[int]*pieces.Piece
 	whiteBoard map[int]*pieces.Piece
 
-	options map[int][]*Option
+	options map[float32][]*Option
 }
 
 type Option struct {
 	Piece     *pieces.Piece
 	MoveTo    int
 	EnPassant int
-	value     int
+	value     float32
 }
 
 func (e *Engine) Init() {
-	e.options = make(map[int][]*Option)
+	e.options = make(map[float32][]*Option)
 }
 
 func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece) *Option {
@@ -30,12 +30,12 @@ func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pie
 	e.allBlackMoves = make(map[int][]*pieces.Piece)
 	e.whiteBoard = whiteBoard
 	e.blackBoard = blackBoard
-	e.options = make(map[int][]*Option)
+	e.options = make(map[float32][]*Option)
 
 	e.createAllMoves()
-	e.AssignValues()
+	e.AssignValues(false)
 
-	var bestValue int
+	var bestValue float32
 	for value := range e.options {
 		if value > bestValue {
 			bestValue = value
@@ -91,10 +91,20 @@ func (e *Engine) createAllMoves() {
 	}
 }
 
-func (e *Engine) AssignValues() {
-	for move, ps := range e.allBlackMoves {
+func (e *Engine) AssignValues(white bool) {
+	var myMoves map[int][]*pieces.Piece
+	var opponentBoard map[int]*pieces.Piece
+	switch white {
+	case true:
+		myMoves = e.allWhiteMoves
+		opponentBoard = e.blackBoard
+	case false:
+		myMoves = e.allBlackMoves
+		opponentBoard = e.whiteBoard
+	}
+	for move, ps := range myMoves {
 		for _, piece := range ps {
-			var value int
+			var value float32
 			if piece.Kind == pieces.Pawn {
 				if take, ok := piece.EnPassantOptions[move]; ok {
 					value += 1
@@ -108,8 +118,11 @@ func (e *Engine) AssignValues() {
 				}
 			}
 
-			if capturePiece, ok := e.whiteBoard[move]; ok {
-				value += int(capturePiece.Kind)
+			if capturePiece, ok := opponentBoard[move]; ok {
+				value += float32(capturePiece.Kind)
+			}
+			if piece.HasBeenMoved == false {
+				value += 0.3
 			}
 			e.options[value] = append(e.options[value], &Option{
 				Piece:  piece,

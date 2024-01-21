@@ -95,7 +95,9 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 	}
 
 	p.simpleDelete(myBoard)
-	p.calculatePinnedOptions(position)
+	if p.PinnedToKing {
+		p.Options = make(map[int]struct{})
+	}
 
 	return forbiddenSquares, check
 }
