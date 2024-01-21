@@ -1,6 +1,6 @@
 package board
 
-import "chess/engine"
+import "chess/enginev2"
 
 func (a *App) init() {
 	defer func() {
@@ -11,6 +11,6 @@ func (a *App) init() {
 	a.initBlackBoard()
 	a.initImages()
 	a.calculateAllPositions(a.whiteBoard, a.blackBoard)
-	a.engine = engine.Engine{}
+	a.engine = enginev2.Engine{}
 	a.engine.Init()
 }

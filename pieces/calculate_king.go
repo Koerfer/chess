@@ -21,7 +21,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition := position - 9
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if rowPos-newPosition%8 < 0 {
 		// nothing
@@ -36,7 +36,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition = position - 7
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if newPosition%8-rowPos < 0 {
 		// nothing
@@ -51,7 +51,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition = position + 7
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if rowPos-newPosition%8 < 0 {
 		// nothing
@@ -66,7 +66,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition = position + 9
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if newPosition%8-rowPos < 0 {
 		// nothing
@@ -81,7 +81,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition = position - 1
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if rowPos-newPosition%8 < 0 {
 		// nothing
@@ -96,7 +96,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition = position + 1
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if newPosition%8-rowPos < 0 {
 		// nothing
@@ -111,7 +111,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition = position + 8
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if newPosition/8-colPos < 0 {
 		// nothing
@@ -126,7 +126,7 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	newPosition = position - 8
 	if _, ok := forbiddenSquares[newPosition]; ok {
 		// nothing
-	} else if newPosition < 0 {
+	} else if newPosition < 0 || newPosition > 63 {
 		// nothing
 	} else if colPos-newPosition/8 < 0 {
 		// nothing
