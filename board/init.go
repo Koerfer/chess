@@ -106,93 +106,109 @@ func (a *App) initWhiteBoard() {
 func (a *App) initBlackBoard() {
 	a.blackBoard = make(map[int]*pieces.Piece)
 	a.blackBoard[0] = &pieces.Piece{
-		Kind:    pieces.Rook,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Rook,
+		White:        false,
+		Options:      make(map[int]struct{}),
+		LastPosition: 0,
 	}
 	a.blackBoard[1] = &pieces.Piece{
-		Kind:    pieces.Knight,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Knight,
+		White:        false,
+		Options:      make(map[int]struct{}),
+		LastPosition: 1,
 	}
 	a.blackBoard[2] = &pieces.Piece{
-		Kind:    pieces.Bishop,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Bishop,
+		White:        false,
+		Options:      make(map[int]struct{}),
+		LastPosition: 2,
 	}
 	a.blackBoard[3] = &pieces.Piece{
-		Kind:    pieces.Queen,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Queen,
+		White:        false,
+		Options:      make(map[int]struct{}),
+		LastPosition: 3,
 	}
 	a.blackBoard[4] = &pieces.Piece{
 		Kind:           pieces.King,
 		White:          false,
 		Options:        make(map[int]struct{}),
 		CheckingPieces: make(map[int]*pieces.Piece),
+		LastPosition:   4,
 	}
 	a.blackBoard[5] = &pieces.Piece{
-		Kind:    pieces.Bishop,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Bishop,
+		White:        false,
+		Options:      make(map[int]struct{}),
+		LastPosition: 5,
 	}
 	a.blackBoard[6] = &pieces.Piece{
-		Kind:    pieces.Knight,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Knight,
+		White:        false,
+		Options:      make(map[int]struct{}),
+		LastPosition: 6,
 	}
 	a.blackBoard[7] = &pieces.Piece{
-		Kind:    pieces.Rook,
-		White:   false,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Rook,
+		White:        false,
+		Options:      make(map[int]struct{}),
+		LastPosition: 7,
 	}
 	a.blackBoard[8] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     8,
 	}
 	a.blackBoard[9] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     9,
 	}
 	a.blackBoard[10] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     10,
 	}
 	a.blackBoard[11] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     11,
 	}
 	a.blackBoard[12] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     12,
 	}
 	a.blackBoard[13] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     13,
 	}
 	a.blackBoard[14] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     14,
 	}
 	a.blackBoard[15] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            false,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     15,
 	}
 }
 
@@ -216,6 +232,26 @@ func (a *App) initImages() {
 		log.Fatalf("unable to decode option image: %v", err)
 	}
 	optionImage := ebiten.NewImageFromImage(optionDecoded)
+
+	lastPosition, err := os.Open("board/images/last_position.png")
+	if err != nil {
+		log.Fatalf("unable to last position option image: %v", err)
+	}
+	lastPositionDecoded, err := png.Decode(lastPosition)
+	if err != nil {
+		log.Fatalf("unable to decode last position image: %v", err)
+	}
+	lastPositionImage := ebiten.NewImageFromImage(lastPositionDecoded)
+
+	newPosition, err := os.Open("board/images/new_position_marker.png")
+	if err != nil {
+		log.Fatalf("unable to last position option image: %v", err)
+	}
+	newPositionDecoded, err := png.Decode(newPosition)
+	if err != nil {
+		log.Fatalf("unable to decode last position image: %v", err)
+	}
+	newPositionImage := ebiten.NewImageFromImage(newPositionDecoded)
 
 	whitePawn, err := os.Open("board/images/white_pawn.png")
 	if err != nil {
@@ -341,6 +377,10 @@ func (a *App) initImages() {
 	bI = ebiten.NewImage(b.X, b.Y)
 	o := optionImage.Bounds().Size()
 	optionI = ebiten.NewImage(o.X, o.Y)
+	lp := lastPositionImage.Bounds().Size()
+	lastPositionI = ebiten.NewImage(lp.X, lp.Y)
+	np := newPositionImage.Bounds().Size()
+	newPositionI = ebiten.NewImage(np.X, np.Y)
 
 	wp := whitePawnImage.Bounds().Size()
 	wr := whiteRookImage.Bounds().Size()
@@ -371,6 +411,8 @@ func (a *App) initImages() {
 	op := &ebiten.DrawImageOptions{}
 	bI.DrawImage(boardImage, op)
 	optionI.DrawImage(optionImage, op)
+	lastPositionI.DrawImage(lastPositionImage, op)
+	newPositionI.DrawImage(newPositionImage, op)
 
 	wpI.DrawImage(whitePawnImage, op)
 	wrI.DrawImage(whiteRookImage, op)

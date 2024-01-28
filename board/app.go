@@ -5,8 +5,8 @@ import (
 	"chess/pieces"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"math"
-	"time"
 )
 
 const (
@@ -15,20 +15,22 @@ const (
 )
 
 var (
-	bI      *ebiten.Image
-	optionI *ebiten.Image
-	wpI     *ebiten.Image
-	wbI     *ebiten.Image
-	wkiI    *ebiten.Image
-	wqI     *ebiten.Image
-	wrI     *ebiten.Image
-	wknI    *ebiten.Image
-	bpI     *ebiten.Image
-	bbI     *ebiten.Image
-	bkiI    *ebiten.Image
-	bqI     *ebiten.Image
-	brI     *ebiten.Image
-	bknI    *ebiten.Image
+	bI            *ebiten.Image
+	optionI       *ebiten.Image
+	lastPositionI *ebiten.Image
+	newPositionI  *ebiten.Image
+	wpI           *ebiten.Image
+	wbI           *ebiten.Image
+	wkiI          *ebiten.Image
+	wqI           *ebiten.Image
+	wrI           *ebiten.Image
+	wknI          *ebiten.Image
+	bpI           *ebiten.Image
+	bbI           *ebiten.Image
+	bkiI          *ebiten.Image
+	bqI           *ebiten.Image
+	brI           *ebiten.Image
+	bknI          *ebiten.Image
 )
 
 type App struct {
@@ -51,42 +53,41 @@ func (a *App) Update() error {
 	}
 	a.touchIDs = ebiten.AppendTouchIDs(a.touchIDs[:0])
 
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		time.Sleep(100 * time.Millisecond)
+	var board map[int]*pieces.Piece
+	switch a.whitesTurn {
+	case true:
+		board = a.whiteBoard
+	case false:
+		board = a.blackBoard
+	}
+
+	if win(board, a.whitesTurn) {
+		return nil
+	}
+
+	if !a.whitesTurn {
+		option := a.engine.Start(a.blackBoard, a.whiteBoard, false)
+		a.selectedPiece = option.Piece
+
+		if option.EnPassant != 0 {
+			if stop := a.enPassant(option.EnPassant, board); stop {
+				return nil
+			}
+		}
+
+		if stop := a.normal(option.MoveTo, board); stop {
+			return nil
+		}
+
+		return nil
+	}
+
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 		X := int(math.Floor(float64(x) / 108.75))
 		Y := int(math.Floor(float64(y) / 106.125))
 		position := X + Y*8
 		if position >= 64 {
-			return nil
-		}
-
-		var board map[int]*pieces.Piece
-		switch a.whitesTurn {
-		case true:
-			board = a.whiteBoard
-		case false:
-			board = a.blackBoard
-		}
-
-		if win(board, a.whitesTurn) {
-			return nil
-		}
-
-		if !a.whitesTurn {
-			option := a.engine.Start(a.whiteBoard, a.blackBoard)
-			a.selectedPiece = option.Piece
-
-			if option.EnPassant != 0 {
-				if stop := a.enPassant(option.EnPassant, board); stop {
-					return nil
-				}
-			}
-
-			if stop := a.normal(option.MoveTo, board); stop {
-				return nil
-			}
-
 			return nil
 		}
 

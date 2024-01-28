@@ -3,6 +3,7 @@ module chess
 go 1.20
 
 require (
+	github.com/hajimehoshi/ebiten v1.12.12
 	github.com/hajimehoshi/ebiten/v2 v2.4.16
 	github.com/kingledion/go-tools v0.6.0
 )

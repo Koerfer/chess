@@ -68,21 +68,57 @@ func (a *App) drawPieces(screen *ebiten.Image) {
 		case pieces.Pawn:
 			a.op.GeoM.Translate(108.75*float64(position%8), 106.125*math.Floor(float64(position/8)))
 			screen.DrawImage(bpI, &a.op)
+			if position != piece.LastPosition {
+				screen.DrawImage(newPositionI, &a.op)
+				a.op.GeoM.Reset()
+				a.op.GeoM.Translate(108.75*float64(piece.LastPosition%8), 106.125*math.Floor(float64(piece.LastPosition/8)))
+				screen.DrawImage(lastPositionI, &a.op)
+			}
 		case pieces.Knight:
 			a.op.GeoM.Translate(108.75*float64(position%8), 106.125*math.Floor(float64(position/8)))
 			screen.DrawImage(bknI, &a.op)
+			if position != piece.LastPosition {
+				screen.DrawImage(newPositionI, &a.op)
+				a.op.GeoM.Reset()
+				a.op.GeoM.Translate(108.75*float64(piece.LastPosition%8), 106.125*math.Floor(float64(piece.LastPosition/8)))
+				screen.DrawImage(lastPositionI, &a.op)
+			}
 		case pieces.Bishop:
 			a.op.GeoM.Translate(108.75*float64(position%8), 106.125*math.Floor(float64(position/8)))
 			screen.DrawImage(bbI, &a.op)
+			if position != piece.LastPosition {
+				screen.DrawImage(newPositionI, &a.op)
+				a.op.GeoM.Reset()
+				a.op.GeoM.Translate(108.75*float64(piece.LastPosition%8), 106.125*math.Floor(float64(piece.LastPosition/8)))
+				screen.DrawImage(lastPositionI, &a.op)
+			}
 		case pieces.Rook:
 			a.op.GeoM.Translate(108.75*float64(position%8), 106.125*math.Floor(float64(position/8)))
 			screen.DrawImage(brI, &a.op)
+			if position != piece.LastPosition {
+				screen.DrawImage(newPositionI, &a.op)
+				a.op.GeoM.Reset()
+				a.op.GeoM.Translate(108.75*float64(piece.LastPosition%8), 106.125*math.Floor(float64(piece.LastPosition/8)))
+				screen.DrawImage(lastPositionI, &a.op)
+			}
 		case pieces.Queen:
 			a.op.GeoM.Translate(108.75*float64(position%8), 106.125*math.Floor(float64(position/8)))
 			screen.DrawImage(bqI, &a.op)
+			if position != piece.LastPosition {
+				screen.DrawImage(newPositionI, &a.op)
+				a.op.GeoM.Reset()
+				a.op.GeoM.Translate(108.75*float64(piece.LastPosition%8), 106.125*math.Floor(float64(piece.LastPosition/8)))
+				screen.DrawImage(lastPositionI, &a.op)
+			}
 		case pieces.King:
 			a.op.GeoM.Translate(108.75*float64(position%8), 106.125*math.Floor(float64(position/8)))
 			screen.DrawImage(bkiI, &a.op)
+			if position != piece.LastPosition {
+				screen.DrawImage(newPositionI, &a.op)
+				a.op.GeoM.Reset()
+				a.op.GeoM.Translate(108.75*float64(piece.LastPosition%8), 106.125*math.Floor(float64(piece.LastPosition/8)))
+				screen.DrawImage(lastPositionI, &a.op)
+			}
 		}
 	}
 }

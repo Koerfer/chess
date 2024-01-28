@@ -25,17 +25,25 @@ func (e *Engine) Init() {
 	e.options = make(map[float32][]*Option)
 }
 
-func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece) *Option {
+func (e *Engine) Start(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, white bool) *Option {
 	e.allWhiteMoves = make(map[int][]*pieces.Piece)
 	e.allBlackMoves = make(map[int][]*pieces.Piece)
-	e.whiteBoard = whiteBoard
-	e.blackBoard = blackBoard
+	switch white {
+	case true:
+		e.whiteBoard = myBoard
+		e.blackBoard = opponentBoard
+	case false:
+		e.whiteBoard = opponentBoard
+		e.blackBoard = myBoard
+	}
+
 	e.options = make(map[float32][]*Option)
 
 	e.createAllMoves()
-	e.AssignValues(false)
+	e.AssignValues(white)
 
 	var bestValue float32
+
 	for value := range e.options {
 		if value > bestValue {
 			bestValue = value
