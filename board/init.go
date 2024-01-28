@@ -13,93 +13,109 @@ func (a *App) initWhiteBoard() {
 	a.whitesTurn = true
 	a.whiteBoard = make(map[int]*pieces.Piece)
 	a.whiteBoard[56] = &pieces.Piece{
-		Kind:    pieces.Rook,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Rook,
+		White:        true,
+		Options:      make(map[int]struct{}),
+		LastPosition: 56,
 	}
 	a.whiteBoard[57] = &pieces.Piece{
-		Kind:    pieces.Knight,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Knight,
+		White:        true,
+		Options:      make(map[int]struct{}),
+		LastPosition: 57,
 	}
 	a.whiteBoard[58] = &pieces.Piece{
-		Kind:    pieces.Bishop,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Bishop,
+		White:        true,
+		Options:      make(map[int]struct{}),
+		LastPosition: 58,
 	}
 	a.whiteBoard[59] = &pieces.Piece{
-		Kind:    pieces.Queen,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Queen,
+		White:        true,
+		Options:      make(map[int]struct{}),
+		LastPosition: 59,
 	}
 	a.whiteBoard[60] = &pieces.Piece{
 		Kind:           pieces.King,
 		White:          true,
 		Options:        make(map[int]struct{}),
 		CheckingPieces: make(map[int]*pieces.Piece),
+		LastPosition:   60,
 	}
 	a.whiteBoard[61] = &pieces.Piece{
-		Kind:    pieces.Bishop,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Bishop,
+		White:        true,
+		Options:      make(map[int]struct{}),
+		LastPosition: 61,
 	}
 	a.whiteBoard[62] = &pieces.Piece{
-		Kind:    pieces.Knight,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Knight,
+		White:        true,
+		Options:      make(map[int]struct{}),
+		LastPosition: 62,
 	}
 	a.whiteBoard[63] = &pieces.Piece{
-		Kind:    pieces.Rook,
-		White:   true,
-		Options: make(map[int]struct{}),
+		Kind:         pieces.Rook,
+		White:        true,
+		Options:      make(map[int]struct{}),
+		LastPosition: 63,
 	}
 	a.whiteBoard[48] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     8,
 	}
 	a.whiteBoard[49] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     49,
 	}
 	a.whiteBoard[50] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     50,
 	}
 	a.whiteBoard[51] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     51,
 	}
 	a.whiteBoard[52] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     52,
 	}
 	a.whiteBoard[53] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     53,
 	}
 	a.whiteBoard[54] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     54,
 	}
 	a.whiteBoard[55] = &pieces.Piece{
 		Kind:             pieces.Pawn,
 		White:            true,
 		Options:          make(map[int]struct{}),
 		EnPassantOptions: make(map[int]int),
+		LastPosition:     55,
 	}
 }
 

@@ -25,45 +25,92 @@ func (e *Engine) Init() {
 	e.options = make(map[float32][]*Option)
 }
 
-func (e *Engine) Start(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, white bool) *Option {
+func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece, white bool) *Option {
 	e.allWhiteMoves = make(map[int][]*pieces.Piece)
 	e.allBlackMoves = make(map[int][]*pieces.Piece)
-	switch white {
-	case true:
-		e.whiteBoard = myBoard
-		e.blackBoard = opponentBoard
-	case false:
-		e.whiteBoard = opponentBoard
-		e.blackBoard = myBoard
-	}
+	e.whiteBoard = whiteBoard
+	e.blackBoard = blackBoard
 
 	e.options = make(map[float32][]*Option)
 
-	e.createAllMoves()
+	e.createAllMoves(white)
 	e.AssignValues(white)
 
-	var bestValue float32
+	bestValue := float32(-10000)
+	var bestOption *Option
 
-	for value := range e.options {
-		if value > bestValue {
-			bestValue = value
+	if white {
+		for value := range e.options {
+			if value > bestValue {
+				bestValue = value
+			}
+		}
+		for _, option := range e.options[bestValue] {
+			return option
 		}
 	}
-	for _, option := range e.options[bestValue] {
-		return option
+
+	for value, options := range e.options {
+		for _, option := range options {
+			if !white {
+				newWhiteBoard, newBlackBoard := e.createNewBoardState(option)
+				newEngine := &Engine{}
+				newEngine.Init()
+				newOption := newEngine.Start(newWhiteBoard, newBlackBoard, true)
+				if value-newOption.value >= bestValue {
+					bestValue = value - newOption.value
+					bestOption = option
+				}
+			}
+		}
 	}
 
-	return nil
+	//var bestValue float32
+	//
+	//for value := range e.options {
+	//	if value > bestValue {
+	//		bestValue = value
+	//	}
+	//}
+	//for _, option := range e.options[bestValue] {
+	//	return option
+	//}
+
+	return bestOption
+	//return nil
 }
 
-func (e *Engine) createAllMoves() {
+func (e *Engine) createAllMoves(white bool) {
 	e.allWhiteMoves = make(map[int][]*pieces.Piece)
 	e.allBlackMoves = make(map[int][]*pieces.Piece)
+	if white {
+		for position, piece := range e.whiteBoard {
+			piece.LastPosition = position
+			for option := range piece.Options {
+				if p, ok := e.allWhiteMoves[option]; ok {
+					e.allWhiteMoves[option] = append(p, piece)
+					continue
+				}
+				e.allWhiteMoves[option] = []*pieces.Piece{piece}
+			}
+			if piece.Kind == pieces.Pawn {
+				for option := range piece.EnPassantOptions {
+					if p, ok := e.allWhiteMoves[option]; ok {
+						e.allWhiteMoves[option] = append(p, piece)
+						continue
+					}
+					e.allWhiteMoves[option] = []*pieces.Piece{piece}
+				}
+			}
+		}
+		return
+	}
+
 	for position, piece := range e.blackBoard {
 		piece.LastPosition = position
 		for option := range piece.Options {
 			if p, ok := e.allBlackMoves[option]; ok {
-				p = append(p, piece)
+				e.allBlackMoves[option] = append(p, piece)
 				continue
 			}
 			e.allBlackMoves[option] = []*pieces.Piece{piece}
@@ -71,29 +118,10 @@ func (e *Engine) createAllMoves() {
 		if piece.Kind == pieces.Pawn {
 			for option := range piece.EnPassantOptions {
 				if p, ok := e.allBlackMoves[option]; ok {
-					p = append(p, piece)
+					e.allBlackMoves[option] = append(p, piece)
 					continue
 				}
 				e.allBlackMoves[option] = []*pieces.Piece{piece}
-			}
-		}
-	}
-	for position, piece := range e.whiteBoard {
-		piece.LastPosition = position
-		for option := range piece.Options {
-			if p, ok := e.allWhiteMoves[option]; ok {
-				p = append(p, piece)
-				continue
-			}
-			e.allWhiteMoves[option] = []*pieces.Piece{piece}
-		}
-		if piece.Kind == pieces.Pawn {
-			for option := range piece.EnPassantOptions {
-				if p, ok := e.allWhiteMoves[option]; ok {
-					p = append(p, piece)
-					continue
-				}
-				e.allWhiteMoves[option] = []*pieces.Piece{piece}
 			}
 		}
 	}

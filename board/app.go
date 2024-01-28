@@ -66,7 +66,7 @@ func (a *App) Update() error {
 	}
 
 	if !a.whitesTurn {
-		option := a.engine.Start(a.blackBoard, a.whiteBoard, false)
+		option := a.engine.Start(a.whiteBoard, a.blackBoard, a.whitesTurn)
 		a.selectedPiece = option.Piece
 
 		if option.EnPassant != 0 {

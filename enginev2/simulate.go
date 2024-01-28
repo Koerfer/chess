@@ -6,7 +6,7 @@ func (e *Engine) createNewBoardState(option *Option) (map[int]*pieces.Piece, map
 	myBoard := make(map[int]*pieces.Piece)
 	opponentBoard := make(map[int]*pieces.Piece)
 
-	white := option.Piece.White
+	white := !option.Piece.White
 
 	switch white {
 	case true:
@@ -73,31 +73,26 @@ func (e *Engine) createNewBoardState(option *Option) (map[int]*pieces.Piece, map
 		}
 	}
 
-	pieceCopy := myBoard[option.Piece.LastPosition]
+	pieceCopy := opponentBoard[option.Piece.LastPosition]
 
 	if option.EnPassant != 0 {
-		return e.enPassant(myBoard, opponentBoard, option.Piece.LastPosition, option.MoveTo, option.EnPassant, pieceCopy, white)
+		return e.enPassant(myBoard, opponentBoard, option.Piece.LastPosition, option.MoveTo, option.EnPassant, pieceCopy)
 	}
 
-	return e.normal(myBoard, opponentBoard, option.Piece.LastPosition, option.MoveTo, pieceCopy, white)
+	return e.normal(myBoard, opponentBoard, option.Piece.LastPosition, option.MoveTo, pieceCopy)
 }
 
-func (e *Engine) enPassant(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, position int, moveTo int, take int, selectedPiece *pieces.Piece, whitesTurn bool) (map[int]*pieces.Piece, map[int]*pieces.Piece) {
-	switch whitesTurn {
-	case true:
-		delete(opponentBoard, take)
-	case false:
-		delete(opponentBoard, take)
-	}
+func (e *Engine) enPassant(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, position int, moveTo int, take int, selectedPiece *pieces.Piece) (map[int]*pieces.Piece, map[int]*pieces.Piece) {
+	delete(myBoard, take)
 
-	myBoard[moveTo] = selectedPiece
-	delete(myBoard, position)
+	opponentBoard[moveTo] = selectedPiece
+	delete(opponentBoard, position)
 	selectedPiece = nil
 
 	return calculateAllPositions(myBoard, opponentBoard)
 }
 
-func (e *Engine) normal(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, position int, option int, selectedPiece *pieces.Piece, whitesTurn bool) (map[int]*pieces.Piece, map[int]*pieces.Piece) {
+func (e *Engine) normal(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, position int, option int, selectedPiece *pieces.Piece) (map[int]*pieces.Piece, map[int]*pieces.Piece) {
 	if selectedPiece.Kind == pieces.Pawn {
 		end := 7
 		if selectedPiece.White == true {
@@ -108,71 +103,61 @@ func (e *Engine) normal(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pi
 		}
 	}
 
-	switch whitesTurn {
-	case true:
-		delete(opponentBoard, option)
-	case false:
-		delete(opponentBoard, option)
-	}
+	delete(myBoard, option)
 
 	if selectedPiece.Kind == pieces.King && !selectedPiece.HasBeenMoved {
-		castled, myBoard, opponentBoard := e.castle(option, myBoard, opponentBoard, selectedPiece)
+		castled, newOpponentBoard := e.castle(option, opponentBoard, selectedPiece)
 		if castled {
-			return myBoard, opponentBoard
+			return calculateAllPositions(myBoard, newOpponentBoard)
 		}
 	}
 
 	selectedPiece.HasBeenMoved = true
 
-	myBoard[option] = selectedPiece
-	delete(myBoard, selectedPiece.LastPosition)
+	opponentBoard[option] = selectedPiece
+	delete(opponentBoard, selectedPiece.LastPosition)
 	selectedPiece = nil
 
-	whitesTurn = !whitesTurn
 	return calculateAllPositions(myBoard, opponentBoard)
 }
 
-func (e *Engine) castle(option int, myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, selectedPiece *pieces.Piece) (bool, map[int]*pieces.Piece, map[int]*pieces.Piece) {
+func (e *Engine) castle(option int, board map[int]*pieces.Piece, selectedPiece *pieces.Piece) (bool, map[int]*pieces.Piece) {
 	switch option {
 	case 2:
 		selectedPiece.HasBeenMoved = true
-		myBoard[option] = selectedPiece
-		myBoard[3] = myBoard[0]
-		delete(myBoard, selectedPiece.LastPosition)
-		delete(myBoard, 0)
+		board[option] = selectedPiece
+		board[3] = board[0]
+		delete(board, selectedPiece.LastPosition)
+		delete(board, 0)
 		selectedPiece = nil
-		myBoard, opponentBoard := calculateAllPositions(myBoard, opponentBoard)
-		return true, myBoard, opponentBoard
+		return true, board
 	case 6:
 		selectedPiece.HasBeenMoved = true
-		myBoard[option] = selectedPiece
-		myBoard[5] = myBoard[7]
-		delete(myBoard, selectedPiece.LastPosition)
-		delete(myBoard, 7)
+		board[option] = selectedPiece
+		board[5] = board[7]
+		delete(board, selectedPiece.LastPosition)
+		delete(board, 7)
 		selectedPiece = nil
-		myBoard, opponentBoard := calculateAllPositions(myBoard, opponentBoard)
-		return true, myBoard, opponentBoard
+		return true, board
 	case 58:
 		selectedPiece.HasBeenMoved = true
-		myBoard[option] = selectedPiece
-		myBoard[59] = myBoard[56]
-		delete(myBoard, selectedPiece.LastPosition)
-		delete(myBoard, 56)
+		board[option] = selectedPiece
+		board[59] = board[56]
+		delete(board, selectedPiece.LastPosition)
+		delete(board, 56)
 		selectedPiece = nil
-		myBoard, opponentBoard := calculateAllPositions(myBoard, opponentBoard)
-		return true, myBoard, opponentBoard
+		return true, board
 	case 62:
 		selectedPiece.HasBeenMoved = true
-		myBoard[option] = selectedPiece
-		myBoard[61] = myBoard[63]
-		delete(myBoard, selectedPiece.LastPosition)
-		delete(myBoard, 63)
+		board[option] = selectedPiece
+		board[61] = board[63]
+		delete(board, selectedPiece.LastPosition)
+		delete(board, 63)
 		selectedPiece = nil
-		myBoard, opponentBoard := calculateAllPositions(myBoard, opponentBoard)
-		return true, myBoard, opponentBoard
+		return true, board
 	}
 
-	return false, nil, nil
+	return false, nil
 }
 
 func calculateAllPositions(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece) (map[int]*pieces.Piece, map[int]*pieces.Piece) {
