@@ -11,65 +11,17 @@ func (e *Engine) createNewBoardState(option *Option) (map[int]*pieces.Piece, map
 	switch white {
 	case true:
 		for k, v := range e.whiteBoard {
-			myBoard[k] = &pieces.Piece{
-				Kind:             v.Kind,
-				White:            v.White,
-				LastPosition:     v.LastPosition,
-				Options:          v.Options,
-				EnPassantOptions: v.EnPassantOptions,
-				HasBeenMoved:     v.HasBeenMoved,
-				Checked:          v.Checked,
-				CheckingPieces:   v.CheckingPieces,
-				PinnedToKing:     v.PinnedToKing,
-				PinnedByPosition: v.PinnedByPosition,
-				PinnedByPiece:    v.PinnedByPiece,
-			}
+			myBoard[k] = newPieceFromPointer(v)
 		}
 		for k, v := range e.blackBoard {
-			opponentBoard[k] = &pieces.Piece{
-				Kind:             v.Kind,
-				White:            v.White,
-				LastPosition:     v.LastPosition,
-				Options:          v.Options,
-				EnPassantOptions: v.EnPassantOptions,
-				HasBeenMoved:     v.HasBeenMoved,
-				Checked:          v.Checked,
-				CheckingPieces:   v.CheckingPieces,
-				PinnedToKing:     v.PinnedToKing,
-				PinnedByPosition: v.PinnedByPosition,
-				PinnedByPiece:    v.PinnedByPiece,
-			}
+			opponentBoard[k] = newPieceFromPointer(v)
 		}
 	case false:
 		for k, v := range e.blackBoard {
-			myBoard[k] = &pieces.Piece{
-				Kind:             v.Kind,
-				White:            v.White,
-				LastPosition:     v.LastPosition,
-				Options:          v.Options,
-				EnPassantOptions: v.EnPassantOptions,
-				HasBeenMoved:     v.HasBeenMoved,
-				Checked:          v.Checked,
-				CheckingPieces:   v.CheckingPieces,
-				PinnedToKing:     v.PinnedToKing,
-				PinnedByPosition: v.PinnedByPosition,
-				PinnedByPiece:    v.PinnedByPiece,
-			}
+			myBoard[k] = newPieceFromPointer(v)
 		}
 		for k, v := range e.whiteBoard {
-			opponentBoard[k] = &pieces.Piece{
-				Kind:             v.Kind,
-				White:            v.White,
-				LastPosition:     v.LastPosition,
-				Options:          v.Options,
-				EnPassantOptions: v.EnPassantOptions,
-				HasBeenMoved:     v.HasBeenMoved,
-				Checked:          v.Checked,
-				CheckingPieces:   v.CheckingPieces,
-				PinnedToKing:     v.PinnedToKing,
-				PinnedByPosition: v.PinnedByPosition,
-				PinnedByPiece:    v.PinnedByPiece,
-			}
+			opponentBoard[k] = newPieceFromPointer(v)
 		}
 	}
 
@@ -80,6 +32,43 @@ func (e *Engine) createNewBoardState(option *Option) (map[int]*pieces.Piece, map
 	}
 
 	return e.normal(myBoard, opponentBoard, option.Piece.LastPosition, option.MoveTo, pieceCopy)
+}
+
+func newPieceFromPointer(piece *pieces.Piece) *pieces.Piece {
+	if piece == nil {
+		return nil
+	}
+	checkingPieces := make(map[int]*pieces.Piece)
+	if piece.Kind == pieces.King {
+		for checkingPosition, checkingPiece := range piece.CheckingPieces {
+			checkingPieces[checkingPosition] = &pieces.Piece{
+				Kind:             checkingPiece.Kind,
+				White:            checkingPiece.White,
+				LastPosition:     checkingPiece.LastPosition,
+				Options:          checkingPiece.Options,
+				EnPassantOptions: checkingPiece.EnPassantOptions,
+				HasBeenMoved:     checkingPiece.HasBeenMoved,
+				Checked:          checkingPiece.Checked,
+				CheckingPieces:   checkingPiece.CheckingPieces,
+				PinnedToKing:     checkingPiece.PinnedToKing,
+				PinnedByPosition: checkingPiece.PinnedByPosition,
+				PinnedByPiece:    newPieceFromPointer(checkingPiece.PinnedByPiece),
+			}
+		}
+	}
+	return &pieces.Piece{
+		Kind:             piece.Kind,
+		White:            piece.White,
+		LastPosition:     piece.LastPosition,
+		Options:          piece.Options,
+		EnPassantOptions: piece.EnPassantOptions,
+		HasBeenMoved:     piece.HasBeenMoved,
+		Checked:          piece.Checked,
+		CheckingPieces:   checkingPieces,
+		PinnedToKing:     piece.PinnedToKing,
+		PinnedByPosition: piece.PinnedByPosition,
+		PinnedByPiece:    newPieceFromPointer(piece.PinnedByPiece),
+	}
 }
 
 func (e *Engine) enPassant(myBoard map[int]*pieces.Piece, opponentBoard map[int]*pieces.Piece, position int, moveTo int, take int, selectedPiece *pieces.Piece) (map[int]*pieces.Piece, map[int]*pieces.Piece) {
