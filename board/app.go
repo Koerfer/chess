@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	ScreenWidth  = 870
-	ScreenHeight = 849
+	ScreenWidth  = 864
+	ScreenHeight = 864
 )
 
 var (
@@ -84,8 +84,8 @@ func (a *App) Update() error {
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
-		X := int(math.Floor(float64(x) / 108.75))
-		Y := int(math.Floor(float64(y) / 106.125))
+		X := int(math.Floor(float64(x) / (ScreenWidth / 8)))
+		Y := int(math.Floor(float64(y) / (ScreenHeight / 8)))
 		position := X + Y*8
 		if position >= 64 {
 			return nil
