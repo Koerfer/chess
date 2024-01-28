@@ -95,7 +95,7 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 				}
 			}
 			if opponentBoard[newPosition].Kind != King { // todo: optimisation to only calculate pins when needed
-				for rightPin := +1; rightPin <= 8; rightPin++ {
+				for rightPin := right + 1; rightPin <= 8; rightPin++ {
 					newPositionPin := position + rightPin
 					if newPositionPin < 0 {
 						break
