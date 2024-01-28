@@ -12,6 +12,8 @@ type Engine struct {
 	whiteBoard map[int]*pieces.Piece
 
 	options map[float32][]*Option
+
+	depth int
 }
 
 type Option struct {
@@ -21,8 +23,9 @@ type Option struct {
 	value     float32
 }
 
-func (e *Engine) Init() {
+func (e *Engine) Init(depth int) {
 	e.options = make(map[float32][]*Option)
+	e.depth = depth
 }
 
 func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece, white bool) *Option {
@@ -39,7 +42,7 @@ func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pie
 	bestValue := float32(-10000)
 	var bestOption *Option
 
-	if white {
+	if e.depth == 0 {
 		for value := range e.options {
 			if value > bestValue {
 				bestValue = value
@@ -52,15 +55,13 @@ func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pie
 
 	for value, options := range e.options {
 		for _, option := range options {
-			if !white {
-				newWhiteBoard, newBlackBoard := e.createNewBoardState(option)
-				newEngine := &Engine{}
-				newEngine.Init()
-				newOption := newEngine.Start(newWhiteBoard, newBlackBoard, true)
-				if value-newOption.value >= bestValue {
-					bestValue = value - newOption.value
-					bestOption = option
-				}
+			newWhiteBoard, newBlackBoard := e.createNewBoardState(option)
+			newEngine := &Engine{}
+			newEngine.Init(e.depth - 1)
+			newOption := newEngine.Start(newWhiteBoard, newBlackBoard, white)
+			if value-newOption.value >= bestValue {
+				bestValue = value - newOption.value
+				bestOption = option
 			}
 		}
 	}

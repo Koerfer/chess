@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"math"
+	"time"
 )
 
 const (
@@ -65,24 +66,32 @@ func (a *App) Update() error {
 		return nil
 	}
 
-	if !a.whitesTurn {
-		option := a.engine.Start(a.whiteBoard, a.blackBoard, a.whitesTurn)
-		a.selectedPiece = option.Piece
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		if !a.whitesTurn {
+			start := time.Now()
+			fmt.Println("Starting")
+			option := a.engine.Start(a.whiteBoard, a.blackBoard, a.whitesTurn)
+			a.selectedPiece = option.Piece
 
-		if option.EnPassant != 0 {
-			if stop := a.enPassant(option.EnPassant, board); stop {
+			if option.EnPassant != 0 {
+				if stop := a.enPassant(option.EnPassant, board); stop {
+					duration := time.Since(start)
+					fmt.Println(duration)
+					return nil
+				}
+			}
+
+			if stop := a.normal(option.MoveTo, board); stop {
+				duration := time.Since(start)
+				fmt.Println(duration)
 				return nil
 			}
-		}
 
-		if stop := a.normal(option.MoveTo, board); stop {
+			duration := time.Since(start)
+			fmt.Println(duration)
 			return nil
 		}
 
-		return nil
-	}
-
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 		X := int(math.Floor(float64(x) / (ScreenWidth / 8)))
 		Y := int(math.Floor(float64(y) / (ScreenHeight / 8)))
@@ -182,10 +191,18 @@ func (a *App) normal(position int, board map[int]*pieces.Piece) bool {
 }
 
 func win(board map[int]*pieces.Piece, colour bool) bool {
+	var checked bool
 	for _, piece := range board {
 		if len(piece.Options) != 0 {
 			return false
 		}
+		if piece.Kind == pieces.King {
+			checked = piece.Checked
+		}
+	}
+
+	if !checked {
+		fmt.Println("Draw due to stalemate")
 	}
 
 	if colour {
