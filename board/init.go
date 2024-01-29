@@ -12,219 +12,74 @@ import (
 func (a *App) initWhiteBoard() {
 	a.whitesTurn = true
 	a.whiteBoard = make(map[int]*pieces.Piece)
-	a.whiteBoard[56] = &pieces.Piece{
-		Kind:         pieces.Rook,
-		White:        true,
-		Options:      make(map[int]struct{}),
-		LastPosition: 56,
-	}
-	a.whiteBoard[57] = &pieces.Piece{
-		Kind:         pieces.Knight,
-		White:        true,
-		Options:      make(map[int]struct{}),
-		LastPosition: 57,
-	}
-	a.whiteBoard[58] = &pieces.Piece{
-		Kind:         pieces.Bishop,
-		White:        true,
-		Options:      make(map[int]struct{}),
-		LastPosition: 58,
-	}
-	a.whiteBoard[59] = &pieces.Piece{
-		Kind:         pieces.Queen,
-		White:        true,
-		Options:      make(map[int]struct{}),
-		LastPosition: 59,
-	}
-	a.whiteBoard[60] = &pieces.Piece{
-		Kind:           pieces.King,
-		White:          true,
-		Options:        make(map[int]struct{}),
-		CheckingPieces: make(map[int]*pieces.Piece),
-		LastPosition:   60,
-	}
-	a.whiteBoard[61] = &pieces.Piece{
-		Kind:         pieces.Bishop,
-		White:        true,
-		Options:      make(map[int]struct{}),
-		LastPosition: 61,
-	}
-	a.whiteBoard[62] = &pieces.Piece{
-		Kind:         pieces.Knight,
-		White:        true,
-		Options:      make(map[int]struct{}),
-		LastPosition: 62,
-	}
-	a.whiteBoard[63] = &pieces.Piece{
-		Kind:         pieces.Rook,
-		White:        true,
-		Options:      make(map[int]struct{}),
-		LastPosition: 63,
-	}
-	a.whiteBoard[48] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     8,
-	}
-	a.whiteBoard[49] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     49,
-	}
-	a.whiteBoard[50] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     50,
-	}
-	a.whiteBoard[51] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     51,
-	}
-	a.whiteBoard[52] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     52,
-	}
-	a.whiteBoard[53] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     53,
-	}
-	a.whiteBoard[54] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     54,
-	}
-	a.whiteBoard[55] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            true,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     55,
-	}
+	a.addPiece(56, pieces.Rook, true)
+	a.addPiece(57, pieces.Knight, true)
+	a.addPiece(58, pieces.Bishop, true)
+	a.addPiece(59, pieces.Queen, true)
+	a.addPiece(60, pieces.King, true)
+	a.addPiece(61, pieces.Bishop, true)
+	a.addPiece(62, pieces.Knight, true)
+	a.addPiece(63, pieces.Rook, true)
+
+	a.addPiece(48, pieces.Pawn, true)
+	a.addPiece(49, pieces.Pawn, true)
+	a.addPiece(50, pieces.Pawn, true)
+	a.addPiece(51, pieces.Pawn, true)
+	a.addPiece(52, pieces.Pawn, true)
+	a.addPiece(53, pieces.Pawn, true)
+	a.addPiece(54, pieces.Pawn, true)
+	a.addPiece(55, pieces.Pawn, true)
 }
 
 func (a *App) initBlackBoard() {
 	a.blackBoard = make(map[int]*pieces.Piece)
-	a.blackBoard[0] = &pieces.Piece{
-		Kind:         pieces.Rook,
-		White:        false,
-		Options:      make(map[int]struct{}),
-		LastPosition: 0,
-	}
-	a.blackBoard[1] = &pieces.Piece{
-		Kind:         pieces.Knight,
-		White:        false,
-		Options:      make(map[int]struct{}),
-		LastPosition: 1,
-	}
-	a.blackBoard[2] = &pieces.Piece{
-		Kind:         pieces.Bishop,
-		White:        false,
-		Options:      make(map[int]struct{}),
-		LastPosition: 2,
-	}
-	a.blackBoard[3] = &pieces.Piece{
-		Kind:         pieces.Queen,
-		White:        false,
-		Options:      make(map[int]struct{}),
-		LastPosition: 3,
-	}
-	a.blackBoard[4] = &pieces.Piece{
-		Kind:           pieces.King,
-		White:          false,
-		Options:        make(map[int]struct{}),
-		CheckingPieces: make(map[int]*pieces.Piece),
-		LastPosition:   4,
-	}
-	a.blackBoard[5] = &pieces.Piece{
-		Kind:         pieces.Bishop,
-		White:        false,
-		Options:      make(map[int]struct{}),
-		LastPosition: 5,
-	}
-	a.blackBoard[6] = &pieces.Piece{
-		Kind:         pieces.Knight,
-		White:        false,
-		Options:      make(map[int]struct{}),
-		LastPosition: 6,
-	}
-	a.blackBoard[7] = &pieces.Piece{
-		Kind:         pieces.Rook,
-		White:        false,
-		Options:      make(map[int]struct{}),
-		LastPosition: 7,
-	}
-	a.blackBoard[8] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     8,
-	}
-	a.blackBoard[9] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     9,
-	}
-	a.blackBoard[10] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     10,
-	}
-	a.blackBoard[11] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     11,
-	}
-	a.blackBoard[12] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     12,
-	}
-	a.blackBoard[13] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     13,
-	}
-	a.blackBoard[14] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     14,
-	}
-	a.blackBoard[15] = &pieces.Piece{
-		Kind:             pieces.Pawn,
-		White:            false,
-		Options:          make(map[int]struct{}),
-		EnPassantOptions: make(map[int]int),
-		LastPosition:     15,
+	a.addPiece(0, pieces.Rook, false)
+	a.addPiece(1, pieces.Knight, false)
+	a.addPiece(2, pieces.Bishop, false)
+	a.addPiece(3, pieces.Queen, false)
+	a.addPiece(4, pieces.King, false)
+	a.addPiece(5, pieces.Bishop, false)
+	a.addPiece(6, pieces.Knight, false)
+	a.addPiece(7, pieces.Rook, false)
+
+	a.addPiece(8, pieces.Pawn, false)
+	a.addPiece(9, pieces.Pawn, false)
+	a.addPiece(10, pieces.Pawn, false)
+	a.addPiece(11, pieces.Pawn, false)
+	a.addPiece(12, pieces.Pawn, false)
+	a.addPiece(13, pieces.Pawn, false)
+	a.addPiece(14, pieces.Pawn, false)
+	a.addPiece(15, pieces.Pawn, false)
+}
+
+func (a *App) addPiece(pos int, kind pieces.PieceKind, white bool) {
+	switch white {
+	case true:
+		a.whiteBoard[pos] = &pieces.Piece{
+			Kind:         kind,
+			White:        white,
+			Options:      make(map[int]struct{}),
+			LastPosition: pos,
+		}
+		if kind == pieces.King {
+			a.whiteBoard[pos].CheckingPieces = make(map[int]*pieces.Piece)
+		}
+		if kind == pieces.Pawn {
+			a.whiteBoard[pos].EnPassantOptions = make(map[int]int)
+		}
+	case false:
+		a.blackBoard[pos] = &pieces.Piece{
+			Kind:         kind,
+			White:        white,
+			Options:      make(map[int]struct{}),
+			LastPosition: pos,
+		}
+		if kind == pieces.King {
+			a.blackBoard[pos].CheckingPieces = make(map[int]*pieces.Piece)
+		}
+		if kind == pieces.Pawn {
+			a.blackBoard[pos].EnPassantOptions = make(map[int]int)
+		}
 	}
 }
 

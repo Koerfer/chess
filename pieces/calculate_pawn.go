@@ -29,6 +29,7 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 			p.Options[captureOption] = value // add capture move
 			if opponentBoard[captureOption].Kind == King {
 				check = true
+				opponentBoard[captureOption].CheckingPieces[position] = p
 			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {
@@ -43,6 +44,7 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 			p.Options[captureOption] = value // add capture move
 			if opponentBoard[captureOption].Kind == King {
 				check = true
+				opponentBoard[captureOption].CheckingPieces[position] = p
 			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {
@@ -57,6 +59,7 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 			p.Options[captureOption] = value // add capture move
 			if opponentBoard[captureOption].Kind == King {
 				check = true
+				opponentBoard[captureOption].CheckingPieces[position] = p
 			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {
@@ -71,6 +74,7 @@ func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int
 			p.Options[captureOption] = value // add capture move
 			if opponentBoard[captureOption].Kind == King {
 				check = true
+				opponentBoard[captureOption].CheckingPieces[position] = p
 			}
 		}
 		if position/8 == endPosition+offsetMultiplier*3 {

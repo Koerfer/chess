@@ -12,5 +12,5 @@ func (a *App) init() {
 	a.initImages()
 	a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 	a.engine = enginev2.Engine{}
-	a.engine.Init(3)
+	a.engine.Init(2)
 }

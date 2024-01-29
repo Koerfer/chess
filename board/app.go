@@ -70,7 +70,7 @@ func (a *App) Update() error {
 		if !a.whitesTurn {
 			start := time.Now()
 			fmt.Println("Starting")
-			option := a.engine.Start(a.whiteBoard, a.blackBoard, a.whitesTurn)
+			option := a.engine.Start(a.whiteBoard, a.blackBoard, 0, nil, a.whitesTurn)
 			a.selectedPiece = option.Piece
 
 			if option.EnPassant != 0 {
@@ -203,6 +203,7 @@ func win(board map[int]*pieces.Piece, colour bool) bool {
 
 	if !checked {
 		fmt.Println("Draw due to stalemate")
+		return true
 	}
 
 	if colour {

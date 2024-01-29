@@ -21,6 +21,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
@@ -29,6 +30,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
@@ -40,6 +42,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
@@ -48,6 +51,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
@@ -59,6 +63,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
@@ -67,6 +72,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
@@ -78,6 +84,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
@@ -86,6 +93,7 @@ func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[i
 			opponent, ok := opponentBoard[newPosition]
 			if ok && opponent.Kind == King {
 				check = true
+				opponentBoard[newPosition].CheckingPieces[position] = p
 			}
 			p.Options[newPosition] = value
 		}
