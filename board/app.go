@@ -1,7 +1,7 @@
 package board
 
 import (
-	"chess/enginev2"
+	"chess/engine/v1"
 	"chess/pieces"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -45,7 +45,7 @@ type App struct {
 	whitesTurn    bool
 	selectedPiece *pieces.Piece
 
-	engine enginev2.Engine
+	engine v1.Engine
 }
 
 func (a *App) Update() error {
@@ -70,7 +70,7 @@ func (a *App) Update() error {
 		if !a.whitesTurn {
 			start := time.Now()
 			fmt.Println("Starting")
-			option := a.engine.Start(a.whiteBoard, a.blackBoard, 0, nil, a.whitesTurn)
+			option := a.engine.Start(a.whiteBoard, a.blackBoard, 0, a.whitesTurn)
 			a.selectedPiece = option.Piece
 
 			if option.EnPassant != 0 {

@@ -29,6 +29,8 @@ func (a *App) initWhiteBoard() {
 	a.addPiece(53, pieces.Pawn, true)
 	a.addPiece(54, pieces.Pawn, true)
 	a.addPiece(55, pieces.Pawn, true)
+
+	//a.addPiece(52, pieces.King, true) // todo remove: only for testing purpose
 }
 
 func (a *App) initBlackBoard() {
@@ -50,6 +52,12 @@ func (a *App) initBlackBoard() {
 	a.addPiece(13, pieces.Pawn, false)
 	a.addPiece(14, pieces.Pawn, false)
 	a.addPiece(15, pieces.Pawn, false)
+
+	//a.addPiece(5, pieces.Bishop, false)  // todo remove: only for testing purpose
+	//a.addPiece(48, pieces.Queen, false)  // todo remove: only for testing purpose
+	//a.addPiece(10, pieces.King, false)   // todo remove: only for testing purpose
+	//a.addPiece(63, pieces.Bishop, false) // todo remove: only for testing purpose
+	//a.addPiece(41, pieces.Rook, false)   // todo remove: only for testing purpose
 }
 
 func (a *App) addPiece(pos int, kind pieces.PieceKind, white bool) {
@@ -63,6 +71,7 @@ func (a *App) addPiece(pos int, kind pieces.PieceKind, white bool) {
 		}
 		if kind == pieces.King {
 			a.whiteBoard[pos].CheckingPieces = make(map[int]*pieces.Piece)
+			//a.whiteBoard[pos].HasBeenMoved = true // todo remove: only for testing purpose
 		}
 		if kind == pieces.Pawn {
 			a.whiteBoard[pos].EnPassantOptions = make(map[int]int)
@@ -76,6 +85,7 @@ func (a *App) addPiece(pos int, kind pieces.PieceKind, white bool) {
 		}
 		if kind == pieces.King {
 			a.blackBoard[pos].CheckingPieces = make(map[int]*pieces.Piece)
+			//a.blackBoard[pos].HasBeenMoved = true // todo remove: only for testing purpose
 		}
 		if kind == pieces.Pawn {
 			a.blackBoard[pos].EnPassantOptions = make(map[int]int)

@@ -1,4 +1,4 @@
-package enginev2
+package v1
 
 import "chess/pieces"
 

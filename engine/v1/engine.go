@@ -1,4 +1,4 @@
-package enginev2
+package v1
 
 import (
 	"chess/pieces"
@@ -15,11 +15,12 @@ type Engine struct {
 
 	options map[float32][]*Option
 
-	depth      uint
+	depth      int
 	tree       *tree.Tree[*Option]
 	lastNodeId uint
 
-	bestValue float32
+	bestValue     float32
+	nodesPerDepth map[int][]uint
 }
 
 type Option struct {
@@ -30,31 +31,30 @@ type Option struct {
 	aggValue  float32
 }
 
-func (e *Engine) Init(depth uint) {
+func (e *Engine) Init(depth int) {
 	e.options = make(map[float32][]*Option)
 	e.depth = depth
+	e.nodesPerDepth = make(map[int][]uint)
 }
 
-func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece, parentID uint, oldTree *tree.Tree[*Option], white bool) *Option {
+func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece, parentID uint, white bool) *Option {
 	e.allWhiteMoves = make(map[int][]*pieces.Piece)
 	e.allBlackMoves = make(map[int][]*pieces.Piece)
 	e.whiteBoard = whiteBoard
 	e.blackBoard = blackBoard
 
 	e.options = make(map[float32][]*Option)
-	if oldTree != nil {
-		e.tree = oldTree
-	} else {
-		e.tree = tree.Empty[*Option]()
-		e.tree.Add(0, 0, &Option{
-			Piece: &pieces.Piece{
-				White: true,
-			},
-			MoveTo:    0,
-			EnPassant: 0,
-			value:     0,
-		})
-	}
+
+	e.tree = tree.Empty[*Option]()
+	e.tree.Add(0, 0, &Option{
+		Piece: &pieces.Piece{
+			White: true,
+		},
+		MoveTo:    0,
+		EnPassant: 0,
+		value:     0,
+	})
+	e.nodesPerDepth = make(map[int][]uint)
 
 	switch white {
 	case true:
@@ -72,7 +72,7 @@ func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pie
 	e.buildTree(e.depth, e.tree.Root().GetChildren())
 
 	e.bestValue = -10000
-	e.generateAggValues(e.tree.Root().GetChildren(), e.tree.Root())
+	e.generateValues()
 	var option *Option
 	for _, child := range e.tree.Root().GetChildren() {
 		if child.GetData().value+child.GetData().aggValue > e.bestValue {
@@ -85,38 +85,35 @@ func (e *Engine) Start(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pie
 	return option
 }
 
-func (e *Engine) generateAggValues(children []tree.Node[*Option], parent tree.Node[*Option]) {
-	for _, child := range children {
-		if len(child.GetChildren()) != 0 {
-			e.generateAggValues(child.GetChildren(), child)
-			for _, child2 := range child.GetChildren() {
-				option := child2.GetData()
-				if option.Piece.White { // if white, black parent
-					if child.GetData().aggValue > option.value+option.aggValue {
-						child.GetData().aggValue = option.value + option.aggValue
-					}
-				} else { // if black, white parent
-					if child.GetData().aggValue < option.value+option.aggValue {
-						child.GetData().aggValue = option.value + option.aggValue
-					}
-				}
+func (e *Engine) generateValues() {
+	for i := e.depth - 1; i >= 0; i-- {
+		for _, nodeId := range e.nodesPerDepth[i] {
+			node, _ := e.tree.Find(nodeId)
+			children := node.GetChildren()
+			if len(children) == 0 {
+				node.GetData().value += 100
 			}
-		} else {
-			option := child.GetData()
-			if option.Piece.White { // if white leaf, black parent
-				if parent.GetData().aggValue > option.value {
-					parent.GetData().aggValue = option.value
-				}
-			} else { // if black leaf, white parent
-				if parent.GetData().aggValue < option.value {
-					parent.GetData().aggValue = option.value
-				}
+			e.calculateAggFromChildren(children, node)
+		}
+	}
+}
+
+func (e *Engine) calculateAggFromChildren(children []tree.Node[*Option], parent tree.Node[*Option]) {
+	for _, child := range children {
+		option := child.GetData()
+		if option.Piece.White { // if white leaf, black parent
+			if parent.GetData().aggValue > option.value {
+				parent.GetData().aggValue = option.value
+			}
+		} else { // if black leaf, white parent
+			if parent.GetData().aggValue < option.value {
+				parent.GetData().aggValue = option.value
 			}
 		}
 	}
 }
 
-func (e *Engine) buildTree(depth uint, children []tree.Node[*Option]) {
+func (e *Engine) buildTree(depth int, children []tree.Node[*Option]) {
 	if depth == 0 {
 		return
 	}
@@ -141,7 +138,7 @@ func (e *Engine) buildTree(depth uint, children []tree.Node[*Option]) {
 			opponentBoard = newWhiteBoard
 		}
 
-		e.lastNodeId = assignValues(moves, opponentBoard, e.tree, child.GetID(), e.lastNodeId, white)
+		e.lastNodeId = e.assignValues(moves, opponentBoard, child.GetID(), e.lastNodeId, white, depth)
 	}
 
 	for _, child := range children {
@@ -198,7 +195,7 @@ func createAllMoves(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces
 	return allBlackMoves
 }
 
-func assignValues(myMoves map[int][]*pieces.Piece, opponentBoard map[int]*pieces.Piece, tree *tree.Tree[*Option], parent uint, nodeId uint, white bool) uint {
+func (e *Engine) assignValues(myMoves map[int][]*pieces.Piece, opponentBoard map[int]*pieces.Piece, parent uint, nodeId uint, white bool, depth int) uint {
 	var valueMultiplier float32
 
 	switch white {
@@ -220,7 +217,8 @@ func assignValues(myMoves map[int][]*pieces.Piece, opponentBoard map[int]*pieces
 						EnPassant: take,
 						value:     value,
 					}
-					tree.Add(nodeId, parent, option)
+					e.tree.Add(nodeId, parent, option)
+					e.nodesPerDepth[e.depth-depth+1] = append(e.nodesPerDepth[e.depth-depth+1], nodeId)
 					continue
 				}
 			}
@@ -236,7 +234,8 @@ func assignValues(myMoves map[int][]*pieces.Piece, opponentBoard map[int]*pieces
 				MoveTo: move,
 				value:  value,
 			}
-			tree.Add(nodeId, parent, option)
+			e.tree.Add(nodeId, parent, option)
+			e.nodesPerDepth[e.depth-depth+1] = append(e.nodesPerDepth[e.depth-depth+1], nodeId)
 		}
 	}
 
@@ -273,6 +272,7 @@ func (e *Engine) AssignValues(parent uint, nodeId uint, parentValue float32, whi
 					}
 					e.options[value] = append(e.options[value], option)
 					e.tree.Add(nodeId, parent, option)
+					e.nodesPerDepth[0] = append(e.nodesPerDepth[0], nodeId)
 					continue
 				}
 			}
@@ -290,6 +290,7 @@ func (e *Engine) AssignValues(parent uint, nodeId uint, parentValue float32, whi
 			}
 			e.options[value] = append(e.options[value], option)
 			e.tree.Add(nodeId, parent, option)
+			e.nodesPerDepth[0] = append(e.nodesPerDepth[0], nodeId)
 		}
 	}
 
