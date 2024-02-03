@@ -1,4 +1,4 @@
-package pieces
+package v2
 
 func (p *Piece) calculatePawnMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, fixLastPosition bool) (map[int]struct{}, bool) {
 	forbiddenSquares := make(map[int]struct{})

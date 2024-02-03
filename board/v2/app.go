@@ -1,8 +1,7 @@
-package board
+package v2
 
 import (
-	"chess/engine/v1"
-	"chess/pieces"
+	v2 "chess/pieces/v2"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -39,13 +38,13 @@ type App struct {
 	op        ebiten.DrawImageOptions
 	initiated bool
 
-	whiteBoard map[int]*pieces.Piece
-	blackBoard map[int]*pieces.Piece
+	whiteBoard map[int]*v2.Piece
+	blackBoard map[int]*v2.Piece
 
 	whitesTurn    bool
-	selectedPiece *pieces.Piece
+	selectedPiece *v2.Piece
 
-	engine v1.Engine
+	engine v2.Engine
 }
 
 func (a *App) Update() error {
@@ -54,7 +53,7 @@ func (a *App) Update() error {
 	}
 	a.touchIDs = ebiten.AppendTouchIDs(a.touchIDs[:0])
 
-	var board map[int]*pieces.Piece
+	var board map[int]*v2.Piece
 	switch a.whitesTurn {
 	case true:
 		board = a.whiteBoard
@@ -70,7 +69,11 @@ func (a *App) Update() error {
 		if !a.whitesTurn {
 			start := time.Now()
 			fmt.Println("Starting")
-			option := a.engine.Start(a.whiteBoard, a.blackBoard, 0, a.whitesTurn)
+			node := a.engine.Start(a.whiteBoard, a.blackBoard, 0, a.whitesTurn)
+			if node == nil {
+				return nil
+			}
+			option := node.GetData()
 			a.selectedPiece = option.Piece
 
 			if option.EnPassant != 0 {
@@ -121,7 +124,7 @@ func (a *App) Update() error {
 	return nil
 }
 
-func (a *App) enPassant(position int, board map[int]*pieces.Piece) bool {
+func (a *App) enPassant(position int, board map[int]*v2.Piece) bool {
 	for option, take := range a.selectedPiece.EnPassantOptions {
 		if position != option {
 			continue
@@ -146,19 +149,19 @@ func (a *App) enPassant(position int, board map[int]*pieces.Piece) bool {
 	return false
 }
 
-func (a *App) normal(position int, board map[int]*pieces.Piece) bool {
+func (a *App) normal(position int, board map[int]*v2.Piece) bool {
 	for option := range a.selectedPiece.Options {
 		if position != option {
 			continue
 		}
 
-		if a.selectedPiece.Kind == pieces.Pawn {
+		if a.selectedPiece.Kind == v2.Pawn {
 			end := 7
 			if a.selectedPiece.White == true {
 				end = 0
 			}
 			if position/8 == end {
-				a.selectedPiece.Kind = pieces.Queen // todo: add convert to better Piece logic
+				a.selectedPiece.Kind = v2.Queen // todo: add convert to better Piece logic
 			}
 		}
 
@@ -169,7 +172,7 @@ func (a *App) normal(position int, board map[int]*pieces.Piece) bool {
 			delete(a.whiteBoard, position)
 		}
 
-		if a.selectedPiece.Kind == pieces.King && !a.selectedPiece.HasBeenMoved {
+		if a.selectedPiece.Kind == v2.King && !a.selectedPiece.HasBeenMoved {
 			castled := a.castle(option, board)
 			if castled {
 				return true
@@ -190,13 +193,13 @@ func (a *App) normal(position int, board map[int]*pieces.Piece) bool {
 	return false
 }
 
-func win(board map[int]*pieces.Piece, colour bool) bool {
+func win(board map[int]*v2.Piece, colour bool) bool {
 	var checked bool
 	for _, piece := range board {
 		if len(piece.Options) != 0 {
 			return false
 		}
-		if piece.Kind == pieces.King {
+		if piece.Kind == v2.King {
 			checked = piece.Checked
 		}
 	}

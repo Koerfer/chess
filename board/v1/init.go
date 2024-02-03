@@ -1,7 +1,7 @@
-package board
+package v1
 
 import (
-	"chess/pieces"
+	"chess/pieces/v1"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/jpeg"
 	"image/png"
@@ -11,90 +11,80 @@ import (
 
 func (a *App) initWhiteBoard() {
 	a.whitesTurn = true
-	a.whiteBoard = make(map[int]*pieces.Piece)
-	a.addPiece(56, pieces.Rook, true)
-	a.addPiece(57, pieces.Knight, true)
-	a.addPiece(58, pieces.Bishop, true)
-	a.addPiece(59, pieces.Queen, true)
-	a.addPiece(60, pieces.King, true)
-	a.addPiece(61, pieces.Bishop, true)
-	a.addPiece(62, pieces.Knight, true)
-	a.addPiece(63, pieces.Rook, true)
+	a.whiteBoard = make(map[int]*v1.Piece)
+	a.addPiece(56, v1.Rook, true)
+	a.addPiece(57, v1.Knight, true)
+	a.addPiece(58, v1.Bishop, true)
+	a.addPiece(59, v1.Queen, true)
+	a.addPiece(60, v1.King, true)
+	a.addPiece(61, v1.Bishop, true)
+	a.addPiece(62, v1.Knight, true)
+	a.addPiece(63, v1.Rook, true)
 
-	a.addPiece(48, pieces.Pawn, true)
-	a.addPiece(49, pieces.Pawn, true)
-	a.addPiece(50, pieces.Pawn, true)
-	a.addPiece(51, pieces.Pawn, true)
-	a.addPiece(52, pieces.Pawn, true)
-	a.addPiece(53, pieces.Pawn, true)
-	a.addPiece(54, pieces.Pawn, true)
-	a.addPiece(55, pieces.Pawn, true)
-
-	//a.addPiece(52, pieces.King, true) // todo remove: only for testing purpose
+	a.addPiece(48, v1.Pawn, true)
+	a.addPiece(49, v1.Pawn, true)
+	a.addPiece(50, v1.Pawn, true)
+	a.addPiece(51, v1.Pawn, true)
+	a.addPiece(52, v1.Pawn, true)
+	a.addPiece(53, v1.Pawn, true)
+	a.addPiece(54, v1.Pawn, true)
+	a.addPiece(55, v1.Pawn, true)
 }
 
 func (a *App) initBlackBoard() {
-	a.blackBoard = make(map[int]*pieces.Piece)
-	a.addPiece(0, pieces.Rook, false)
-	a.addPiece(1, pieces.Knight, false)
-	a.addPiece(2, pieces.Bishop, false)
-	a.addPiece(3, pieces.Queen, false)
-	a.addPiece(4, pieces.King, false)
-	a.addPiece(5, pieces.Bishop, false)
-	a.addPiece(6, pieces.Knight, false)
-	a.addPiece(7, pieces.Rook, false)
+	a.blackBoard = make(map[int]*v1.Piece)
+	a.addPiece(0, v1.Rook, false)
+	a.addPiece(1, v1.Knight, false)
+	a.addPiece(2, v1.Bishop, false)
+	a.addPiece(3, v1.Queen, false)
+	a.addPiece(4, v1.King, false)
+	a.addPiece(5, v1.Bishop, false)
+	a.addPiece(6, v1.Knight, false)
+	a.addPiece(7, v1.Rook, false)
 
-	a.addPiece(8, pieces.Pawn, false)
-	a.addPiece(9, pieces.Pawn, false)
-	a.addPiece(10, pieces.Pawn, false)
-	a.addPiece(11, pieces.Pawn, false)
-	a.addPiece(12, pieces.Pawn, false)
-	a.addPiece(13, pieces.Pawn, false)
-	a.addPiece(14, pieces.Pawn, false)
-	a.addPiece(15, pieces.Pawn, false)
-
-	//a.addPiece(5, pieces.Bishop, false)  // todo remove: only for testing purpose
-	//a.addPiece(48, pieces.Queen, false)  // todo remove: only for testing purpose
-	//a.addPiece(10, pieces.King, false)   // todo remove: only for testing purpose
-	//a.addPiece(63, pieces.Bishop, false) // todo remove: only for testing purpose
-	//a.addPiece(41, pieces.Rook, false)   // todo remove: only for testing purpose
+	a.addPiece(8, v1.Pawn, false)
+	a.addPiece(9, v1.Pawn, false)
+	a.addPiece(10, v1.Pawn, false)
+	a.addPiece(11, v1.Pawn, false)
+	a.addPiece(12, v1.Pawn, false)
+	a.addPiece(13, v1.Pawn, false)
+	a.addPiece(14, v1.Pawn, false)
+	a.addPiece(15, v1.Pawn, false)
 }
 
-func (a *App) addPiece(pos int, kind pieces.PieceKind, white bool) {
+func (a *App) addPiece(pos int, kind v1.PieceKind, white bool) {
 	switch white {
 	case true:
-		a.whiteBoard[pos] = &pieces.Piece{
+		a.whiteBoard[pos] = &v1.Piece{
 			Kind:         kind,
 			White:        white,
 			Options:      make(map[int]struct{}),
 			LastPosition: pos,
 		}
-		if kind == pieces.King {
-			a.whiteBoard[pos].CheckingPieces = make(map[int]*pieces.Piece)
-			//a.whiteBoard[pos].HasBeenMoved = true // todo remove: only for testing purpose
+		if kind == v1.King {
+			a.whiteBoard[pos].CheckingPieces = make(map[int]*v1.Piece)
 		}
-		if kind == pieces.Pawn {
+		if kind == v1.Pawn {
 			a.whiteBoard[pos].EnPassantOptions = make(map[int]int)
 		}
 	case false:
-		a.blackBoard[pos] = &pieces.Piece{
+		a.blackBoard[pos] = &v1.Piece{
 			Kind:         kind,
 			White:        white,
 			Options:      make(map[int]struct{}),
 			LastPosition: pos,
 		}
-		if kind == pieces.King {
-			a.blackBoard[pos].CheckingPieces = make(map[int]*pieces.Piece)
-			//a.blackBoard[pos].HasBeenMoved = true // todo remove: only for testing purpose
+		if kind == v1.King {
+			a.blackBoard[pos].CheckingPieces = make(map[int]*v1.Piece)
 		}
-		if kind == pieces.Pawn {
+		if kind == v1.Pawn {
 			a.blackBoard[pos].EnPassantOptions = make(map[int]int)
 		}
 	}
 }
 
 func (a *App) initImages() {
-	chessboard, err := os.Open("board/images/chessboard.jpeg")
+	chessboard, err := os.Open("board/v1/images/chessboard.jpeg")
 	if err != nil {
 		log.Fatalf("unable to open chessboard image: %v", err)
 	}
@@ -104,7 +94,7 @@ func (a *App) initImages() {
 	}
 	boardImage := ebiten.NewImageFromImage(jpegBoard)
 
-	option, err := os.Open("board/images/option.png")
+	option, err := os.Open("board/v1/images/option.png")
 	if err != nil {
 		log.Fatalf("unable to open option image: %v", err)
 	}
@@ -114,7 +104,7 @@ func (a *App) initImages() {
 	}
 	optionImage := ebiten.NewImageFromImage(optionDecoded)
 
-	lastPosition, err := os.Open("board/images/last_position.png")
+	lastPosition, err := os.Open("board/v1/images/last_position.png")
 	if err != nil {
 		log.Fatalf("unable to last position option image: %v", err)
 	}
@@ -124,7 +114,7 @@ func (a *App) initImages() {
 	}
 	lastPositionImage := ebiten.NewImageFromImage(lastPositionDecoded)
 
-	newPosition, err := os.Open("board/images/new_position_marker.png")
+	newPosition, err := os.Open("board/v1/images/new_position_marker.png")
 	if err != nil {
 		log.Fatalf("unable to last position option image: %v", err)
 	}
@@ -134,7 +124,7 @@ func (a *App) initImages() {
 	}
 	newPositionImage := ebiten.NewImageFromImage(newPositionDecoded)
 
-	whitePawn, err := os.Open("board/images/white_pawn.png")
+	whitePawn, err := os.Open("board/v1/images/white_pawn.png")
 	if err != nil {
 		log.Fatalf("unable to open White pawn image: %v", err)
 	}
@@ -144,7 +134,7 @@ func (a *App) initImages() {
 	}
 	whitePawnImage := ebiten.NewImageFromImage(whitePawnDecoded)
 
-	whiteKing, err := os.Open("board/images/white_king.png")
+	whiteKing, err := os.Open("board/v1/images/white_king.png")
 	if err != nil {
 		log.Fatalf("unable to open White king image: %v", err)
 	}
@@ -154,7 +144,7 @@ func (a *App) initImages() {
 	}
 	whiteKingImage := ebiten.NewImageFromImage(whiteKingDecoded)
 
-	whiteRook, err := os.Open("board/images/white_rook.png")
+	whiteRook, err := os.Open("board/v1/images/white_rook.png")
 	if err != nil {
 		log.Fatalf("unable to open White rook image: %v", err)
 	}
@@ -164,7 +154,7 @@ func (a *App) initImages() {
 	}
 	whiteRookImage := ebiten.NewImageFromImage(whiteRookDecoded)
 
-	whiteQueen, err := os.Open("board/images/white_queen.png")
+	whiteQueen, err := os.Open("board/v1/images/white_queen.png")
 	if err != nil {
 		log.Fatalf("unable to open White queen image: %v", err)
 	}
@@ -174,7 +164,7 @@ func (a *App) initImages() {
 	}
 	whiteQueenImage := ebiten.NewImageFromImage(whiteQueenDecoded)
 
-	whiteKnight, err := os.Open("board/images/white_knight.png")
+	whiteKnight, err := os.Open("board/v1/images/white_knight.png")
 	if err != nil {
 		log.Fatalf("unable to open White knight image: %v", err)
 	}
@@ -184,7 +174,7 @@ func (a *App) initImages() {
 	}
 	whiteKnightImage := ebiten.NewImageFromImage(whiteKnightDecoded)
 
-	whiteBishop, err := os.Open("board/images/white_bishop.png")
+	whiteBishop, err := os.Open("board/v1/images/white_bishop.png")
 	if err != nil {
 		log.Fatalf("unable to open White bishop image: %v", err)
 	}
@@ -194,7 +184,7 @@ func (a *App) initImages() {
 	}
 	whiteBishopImage := ebiten.NewImageFromImage(whiteBishopDecoded)
 
-	blackPawn, err := os.Open("board/images/black_pawn.png")
+	blackPawn, err := os.Open("board/v1/images/black_pawn.png")
 	if err != nil {
 		log.Fatalf("unable to open black pawn image: %v", err)
 	}
@@ -204,7 +194,7 @@ func (a *App) initImages() {
 	}
 	blackPawnImage := ebiten.NewImageFromImage(blackPawnDecoded)
 
-	blackKing, err := os.Open("board/images/black_king.png")
+	blackKing, err := os.Open("board/v1/images/black_king.png")
 	if err != nil {
 		log.Fatalf("unable to open black king image: %v", err)
 	}
@@ -214,7 +204,7 @@ func (a *App) initImages() {
 	}
 	blackKingImage := ebiten.NewImageFromImage(blackKingDecoded)
 
-	blackRook, err := os.Open("board/images/black_rook.png")
+	blackRook, err := os.Open("board/v1/images/black_rook.png")
 	if err != nil {
 		log.Fatalf("unable to open black rook image: %v", err)
 	}
@@ -224,7 +214,7 @@ func (a *App) initImages() {
 	}
 	blackRookImage := ebiten.NewImageFromImage(blackRookDecoded)
 
-	blackQueen, err := os.Open("board/images/black_queen.png")
+	blackQueen, err := os.Open("board/v1/images/black_queen.png")
 	if err != nil {
 		log.Fatalf("unable to open black queen image: %v", err)
 	}
@@ -234,7 +224,7 @@ func (a *App) initImages() {
 	}
 	blackQueenImage := ebiten.NewImageFromImage(blackQueenDecoded)
 
-	blackKnight, err := os.Open("board/images/black_knight.png")
+	blackKnight, err := os.Open("board/v1/images/black_knight.png")
 	if err != nil {
 		log.Fatalf("unable to open black knight image: %v", err)
 	}
@@ -244,7 +234,7 @@ func (a *App) initImages() {
 	}
 	blackKnightImage := ebiten.NewImageFromImage(blackKnightDecoded)
 
-	blackBishop, err := os.Open("board/images/black_bishop.png")
+	blackBishop, err := os.Open("board/v1/images/black_bishop.png")
 	if err != nil {
 		log.Fatalf("unable to open black bishop image: %v", err)
 	}

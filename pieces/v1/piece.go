@@ -1,4 +1,4 @@
-package pieces
+package v1
 
 type Piece struct {
 	Kind             PieceKind
@@ -11,7 +11,6 @@ type Piece struct {
 	CheckingPieces   map[int]*Piece
 	PinnedToKing     bool
 	PinnedByPosition int
-	PinnedByPiece    *Piece
 }
 
 type PieceKind int8

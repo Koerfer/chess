@@ -1,4 +1,4 @@
-package pieces
+package v2
 
 func (p *Piece) RemoveOptionsDueToCheck(kingPosition int, checkingPieces map[int]*Piece) {
 	if len(checkingPieces) > 1 {

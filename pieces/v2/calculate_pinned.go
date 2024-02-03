@@ -1,4 +1,4 @@
-package pieces
+package v2
 
 func (p *Piece) calculatePinnedOptions(position int) {
 	if p.PinnedToKing {

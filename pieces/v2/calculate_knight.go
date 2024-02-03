@@ -1,4 +1,4 @@
-package pieces
+package v2
 
 func (p *Piece) calculateKnightMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int) (map[int]struct{}, bool) {
 	forbiddenSquares := make(map[int]struct{})

@@ -1,4 +1,4 @@
-package pieces
+package v2
 
 func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}) map[int]struct{} {
 	newForbiddenSquares := make(map[int]struct{})

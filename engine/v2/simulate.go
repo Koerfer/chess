@@ -1,14 +1,13 @@
-package v1
+package v2
 
 import (
-	"chess/pieces/v1"
 	"github.com/kingledion/go-tools/tree"
 	"slices"
 )
 
-func (e *Engine) createNewBoardState(node tree.Node[*Option]) (map[int]*v1.Piece, map[int]*v1.Piece) {
-	tmpWhiteBoard := make(map[int]*v1.Piece)
-	tmpBlackBoard := make(map[int]*v1.Piece)
+func (e *Engine) createNewBoardState(node tree.Node[*Option]) (map[int]*v2.Piece, map[int]*v2.Piece) {
+	tmpWhiteBoard := make(map[int]*v2.Piece)
+	tmpBlackBoard := make(map[int]*v2.Piece)
 	var parents []tree.Node[*Option]
 
 	tmpNode := node
@@ -25,8 +24,8 @@ func (e *Engine) createNewBoardState(node tree.Node[*Option]) (map[int]*v1.Piece
 	tmpBlackBoard = e.blackBoard
 
 	for _, parent := range parents {
-		myBoard := make(map[int]*v1.Piece)
-		opponentBoard := make(map[int]*v1.Piece)
+		myBoard := make(map[int]*v2.Piece)
+		opponentBoard := make(map[int]*v2.Piece)
 		option := parent.GetData()
 		white := option.Piece.White
 
@@ -62,8 +61,8 @@ func (e *Engine) createNewBoardState(node tree.Node[*Option]) (map[int]*v1.Piece
 		}
 	}
 
-	myBoard := make(map[int]*v1.Piece)
-	opponentBoard := make(map[int]*v1.Piece)
+	myBoard := make(map[int]*v2.Piece)
+	opponentBoard := make(map[int]*v2.Piece)
 	option := node.GetData()
 	white := option.Piece.White
 
@@ -93,14 +92,14 @@ func (e *Engine) createNewBoardState(node tree.Node[*Option]) (map[int]*v1.Piece
 	return e.normal(myBoard, opponentBoard, option.Piece.LastPosition, option.MoveTo, pieceCopy)
 }
 
-func newPieceFromPointer(piece *v1.Piece) *v1.Piece {
+func newPieceFromPointer(piece *v2.Piece) *v2.Piece {
 	if piece == nil {
 		return nil
 	}
-	checkingPieces := make(map[int]*v1.Piece)
-	if piece.Kind == v1.King {
+	checkingPieces := make(map[int]*v2.Piece)
+	if piece.Kind == v2.King {
 		for checkingPosition, checkingPiece := range piece.CheckingPieces {
-			checkingPieces[checkingPosition] = &v1.Piece{
+			checkingPieces[checkingPosition] = &v2.Piece{
 				Kind:             checkingPiece.Kind,
 				White:            checkingPiece.White,
 				LastPosition:     checkingPiece.LastPosition,
@@ -114,7 +113,7 @@ func newPieceFromPointer(piece *v1.Piece) *v1.Piece {
 			}
 		}
 	}
-	return &v1.Piece{
+	return &v2.Piece{
 		Kind:             piece.Kind,
 		White:            piece.White,
 		LastPosition:     piece.LastPosition,
@@ -128,7 +127,7 @@ func newPieceFromPointer(piece *v1.Piece) *v1.Piece {
 	}
 }
 
-func (e *Engine) enPassant(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.Piece, position int, moveTo int, take int, selectedPiece *v1.Piece) (map[int]*v1.Piece, map[int]*v1.Piece) {
+func (e *Engine) enPassant(myBoard map[int]*v2.Piece, opponentBoard map[int]*v2.Piece, position int, moveTo int, take int, selectedPiece *v2.Piece) (map[int]*v2.Piece, map[int]*v2.Piece) {
 	delete(opponentBoard, take)
 	white := selectedPiece.White
 
@@ -139,21 +138,21 @@ func (e *Engine) enPassant(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.
 	return calculateAllPositions(myBoard, opponentBoard, white)
 }
 
-func (e *Engine) normal(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.Piece, position int, option int, selectedPiece *v1.Piece) (map[int]*v1.Piece, map[int]*v1.Piece) {
+func (e *Engine) normal(myBoard map[int]*v2.Piece, opponentBoard map[int]*v2.Piece, position int, option int, selectedPiece *v2.Piece) (map[int]*v2.Piece, map[int]*v2.Piece) {
 	white := selectedPiece.White
-	if selectedPiece.Kind == v1.Pawn {
+	if selectedPiece.Kind == v2.Pawn {
 		end := 7
 		if white == true {
 			end = 0
 		}
 		if position/8 == end {
-			selectedPiece.Kind = v1.Queen // todo: add convert to better Piece logic
+			selectedPiece.Kind = v2.Queen // todo: add convert to better Piece logic
 		}
 	}
 
 	delete(opponentBoard, option)
 
-	if selectedPiece.Kind == v1.King && !selectedPiece.HasBeenMoved {
+	if selectedPiece.Kind == v2.King && !selectedPiece.HasBeenMoved {
 		castled, newOpponentBoard := e.castle(option, myBoard, selectedPiece)
 		if castled {
 			return calculateAllPositions(myBoard, newOpponentBoard, selectedPiece.White)
@@ -169,7 +168,7 @@ func (e *Engine) normal(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.Pie
 	return calculateAllPositions(myBoard, opponentBoard, white)
 }
 
-func (e *Engine) castle(option int, board map[int]*v1.Piece, selectedPiece *v1.Piece) (bool, map[int]*v1.Piece) {
+func (e *Engine) castle(option int, board map[int]*v2.Piece, selectedPiece *v2.Piece) (bool, map[int]*v2.Piece) {
 	switch option {
 	case 2:
 		selectedPiece.HasBeenMoved = true
@@ -208,7 +207,7 @@ func (e *Engine) castle(option int, board map[int]*v1.Piece, selectedPiece *v1.P
 	return false, nil
 }
 
-func calculateAllPositions(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.Piece, white bool) (map[int]*v1.Piece, map[int]*v1.Piece) {
+func calculateAllPositions(myBoard map[int]*v2.Piece, opponentBoard map[int]*v2.Piece, white bool) (map[int]*v2.Piece, map[int]*v2.Piece) {
 	forbiddenSquares := make(map[int]struct{})
 	var check bool
 
@@ -219,8 +218,8 @@ func calculateAllPositions(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.
 		piece.PinnedToKing = false
 	}
 
-	var whiteBoard map[int]*v1.Piece
-	var blackBoard map[int]*v1.Piece
+	var whiteBoard map[int]*v2.Piece
+	var blackBoard map[int]*v2.Piece
 	switch white {
 	case true:
 		whiteBoard = myBoard
@@ -230,7 +229,7 @@ func calculateAllPositions(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.
 		blackBoard = myBoard
 	}
 
-	var checkingPieces map[int]*v1.Piece
+	var checkingPieces map[int]*v2.Piece
 	var kingPosition int
 
 	for position, piece := range opponentBoard {
@@ -239,26 +238,26 @@ func calculateAllPositions(myBoard map[int]*v1.Piece, opponentBoard map[int]*v1.
 		for forbidden := range forbiddenCaptures {
 			forbiddenSquares[forbidden] = struct{}{}
 		}
-		if piece.Kind != v1.Pawn {
+		if piece.Kind != v2.Pawn {
 			for forbidden := range piece.Options {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
 		}
-		if piece.Kind == v1.King {
-			piece.CheckingPieces = make(map[int]*v1.Piece)
+		if piece.Kind == v2.King {
+			piece.CheckingPieces = make(map[int]*v2.Piece)
 		}
 	}
 
 	for position, piece := range myBoard {
 		piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
-		if check && piece.Kind == v1.King {
+		if check && piece.Kind == v2.King {
 			checkingPieces = piece.CheckingPieces
 			kingPosition = position
 		}
 	}
 	if check {
 		for _, piece := range myBoard {
-			if piece.Kind != v1.King {
+			if piece.Kind != v2.King {
 				piece.RemoveOptionsDueToCheck(kingPosition, checkingPieces)
 			}
 		}

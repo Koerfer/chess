@@ -1,4 +1,4 @@
-package pieces
+package v1
 
 func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int) (map[int]struct{}, bool) {
 	forbiddenSquares := make(map[int]struct{})
@@ -55,7 +55,6 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 						if piece.Kind == King {
 							opponentBoard[newPosition].PinnedToKing = true
 							opponentBoard[newPosition].PinnedByPosition = position
-							opponentBoard[newPosition].PinnedByPiece = p
 						}
 						break
 					}
@@ -107,7 +106,6 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 						if piece.Kind == King {
 							opponentBoard[newPosition].PinnedToKing = true
 							opponentBoard[newPosition].PinnedByPosition = position
-							opponentBoard[newPosition].PinnedByPiece = p
 						}
 						break
 					}
@@ -159,7 +157,6 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 						if piece.Kind == King {
 							opponentBoard[newPosition].PinnedToKing = true
 							opponentBoard[newPosition].PinnedByPosition = position
-							opponentBoard[newPosition].PinnedByPiece = p
 						}
 						break
 					}
@@ -211,7 +208,6 @@ func (p *Piece) calculateRookMoves(whiteBoard map[int]*Piece, blackBoard map[int
 						if piece.Kind == King {
 							opponentBoard[newPosition].PinnedToKing = true
 							opponentBoard[newPosition].PinnedByPosition = position
-							opponentBoard[newPosition].PinnedByPiece = p
 						}
 						break
 					}

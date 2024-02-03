@@ -1,8 +1,6 @@
-package board
+package v2
 
-import "chess/pieces"
-
-func (a *App) castle(option int, board map[int]*pieces.Piece) bool {
+func (a *App) castle(option int, board map[int]*v2.Piece) bool {
 	switch option {
 	case 2:
 		a.selectedPiece.HasBeenMoved = true

@@ -1,7 +1,6 @@
-package v1
+package v2
 
 import (
-	"chess/pieces/v1"
 	"fmt"
 	"github.com/kingledion/go-tools/tree"
 )
@@ -9,11 +8,11 @@ import (
 type Engine struct {
 	original bool
 
-	allBlackMoves map[int][]*v1.Piece
-	allWhiteMoves map[int][]*v1.Piece
+	allBlackMoves map[int][]*v2.Piece
+	allWhiteMoves map[int][]*v2.Piece
 
-	blackBoard map[int]*v1.Piece
-	whiteBoard map[int]*v1.Piece
+	blackBoard map[int]*v2.Piece
+	whiteBoard map[int]*v2.Piece
 
 	depth      int
 	tree       *tree.Tree[*Option]
@@ -26,7 +25,7 @@ type Engine struct {
 }
 
 type Option struct {
-	Piece       *v1.Piece
+	Piece       *v2.Piece
 	MoveTo      int
 	EnPassant   int
 	value       float32
@@ -41,16 +40,16 @@ func (e *Engine) Init(depth int, original bool) {
 	e.discardedChildren = make(map[uint]tree.Node[*Option])
 }
 
-func (e *Engine) Start(whiteBoard map[int]*v1.Piece, blackBoard map[int]*v1.Piece, parentID uint, white bool) tree.Node[*Option] {
-	e.allWhiteMoves = make(map[int][]*v1.Piece)
-	e.allBlackMoves = make(map[int][]*v1.Piece)
+func (e *Engine) Start(whiteBoard map[int]*v2.Piece, blackBoard map[int]*v2.Piece, parentID uint, white bool) tree.Node[*Option] {
+	e.allWhiteMoves = make(map[int][]*v2.Piece)
+	e.allBlackMoves = make(map[int][]*v2.Piece)
 	e.whiteBoard = whiteBoard
 	e.blackBoard = blackBoard
 	e.discardedChildren = make(map[uint]tree.Node[*Option])
 
 	e.tree = tree.Empty[*Option]()
 	e.tree.Add(0, 0, &Option{
-		Piece: &v1.Piece{
+		Piece: &v2.Piece{
 			White: true,
 		},
 		MoveTo:    0,
@@ -233,8 +232,8 @@ func (e *Engine) buildTree(depth int, children []tree.Node[*Option]) {
 		return
 	}
 	for _, child := range children {
-		var newWhiteBoard map[int]*v1.Piece
-		var newBlackBoard map[int]*v1.Piece
+		var newWhiteBoard map[int]*v2.Piece
+		var newBlackBoard map[int]*v2.Piece
 
 		white := child.GetData().Piece.White
 		if white {
@@ -245,7 +244,7 @@ func (e *Engine) buildTree(depth int, children []tree.Node[*Option]) {
 
 		moves := createAllMoves(newWhiteBoard, newBlackBoard, white)
 
-		var opponentBoard map[int]*v1.Piece
+		var opponentBoard map[int]*v2.Piece
 		switch white {
 		case true:
 			opponentBoard = newBlackBoard
@@ -261,9 +260,9 @@ func (e *Engine) buildTree(depth int, children []tree.Node[*Option]) {
 	}
 }
 
-func createAllMoves(whiteBoard map[int]*v1.Piece, blackBoard map[int]*v1.Piece, white bool) map[int][]*v1.Piece {
-	allWhiteMoves := make(map[int][]*v1.Piece)
-	allBlackMoves := make(map[int][]*v1.Piece)
+func createAllMoves(whiteBoard map[int]*v2.Piece, blackBoard map[int]*v2.Piece, white bool) map[int][]*v2.Piece {
+	allWhiteMoves := make(map[int][]*v2.Piece)
+	allBlackMoves := make(map[int][]*v2.Piece)
 	if white {
 		for position, piece := range whiteBoard {
 			piece.LastPosition = position
@@ -272,15 +271,15 @@ func createAllMoves(whiteBoard map[int]*v1.Piece, blackBoard map[int]*v1.Piece, 
 					allWhiteMoves[option] = append(p, piece)
 					continue
 				}
-				allWhiteMoves[option] = []*v1.Piece{piece}
+				allWhiteMoves[option] = []*v2.Piece{piece}
 			}
-			if piece.Kind == v1.Pawn {
+			if piece.Kind == v2.Pawn {
 				for option := range piece.EnPassantOptions {
 					if p, ok := allWhiteMoves[option]; ok {
 						allWhiteMoves[option] = append(p, piece)
 						continue
 					}
-					allWhiteMoves[option] = []*v1.Piece{piece}
+					allWhiteMoves[option] = []*v2.Piece{piece}
 				}
 			}
 		}
@@ -294,15 +293,15 @@ func createAllMoves(whiteBoard map[int]*v1.Piece, blackBoard map[int]*v1.Piece, 
 				allBlackMoves[option] = append(p, piece)
 				continue
 			}
-			allBlackMoves[option] = []*v1.Piece{piece}
+			allBlackMoves[option] = []*v2.Piece{piece}
 		}
-		if piece.Kind == v1.Pawn {
+		if piece.Kind == v2.Pawn {
 			for option := range piece.EnPassantOptions {
 				if p, ok := allBlackMoves[option]; ok {
 					allBlackMoves[option] = append(p, piece)
 					continue
 				}
-				allBlackMoves[option] = []*v1.Piece{piece}
+				allBlackMoves[option] = []*v2.Piece{piece}
 			}
 		}
 	}
@@ -310,7 +309,7 @@ func createAllMoves(whiteBoard map[int]*v1.Piece, blackBoard map[int]*v1.Piece, 
 	return allBlackMoves
 }
 
-func (e *Engine) assignValues(myMoves map[int][]*v1.Piece, opponentBoard map[int]*v1.Piece, parent uint, nodeId uint, white bool, depth int) uint {
+func (e *Engine) assignValues(myMoves map[int][]*v2.Piece, opponentBoard map[int]*v2.Piece, parent uint, nodeId uint, white bool, depth int) uint {
 	var valueMultiplier float32
 
 	switch white {
@@ -323,7 +322,7 @@ func (e *Engine) assignValues(myMoves map[int][]*v1.Piece, opponentBoard map[int
 		for _, piece := range ps {
 			nodeId++
 			var value float32
-			if piece.Kind == v1.Pawn {
+			if piece.Kind == v2.Pawn {
 				if take, ok := piece.EnPassantOptions[move]; ok {
 					value += 1 * valueMultiplier
 					option := &Option{
@@ -355,8 +354,8 @@ func (e *Engine) assignValues(myMoves map[int][]*v1.Piece, opponentBoard map[int
 }
 
 func (e *Engine) AssignValues(parent uint, nodeId uint, parentValue float32, white bool) uint {
-	var myMoves map[int][]*v1.Piece
-	var opponentBoard map[int]*v1.Piece
+	var myMoves map[int][]*v2.Piece
+	var opponentBoard map[int]*v2.Piece
 	var valueMultiplier float32
 
 	switch white {
@@ -373,7 +372,7 @@ func (e *Engine) AssignValues(parent uint, nodeId uint, parentValue float32, whi
 		for _, piece := range ps {
 			nodeId++
 			value := parentValue
-			if piece.Kind == v1.Pawn {
+			if piece.Kind == v2.Pawn {
 				if take, ok := piece.EnPassantOptions[move]; ok {
 					value += 1 * valueMultiplier
 					option := &Option{

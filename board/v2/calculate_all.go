@@ -1,8 +1,6 @@
-package board
+package v2
 
-import "chess/pieces"
-
-func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard map[int]*pieces.Piece) {
+func (a *App) calculateAllPositions(whiteBoard map[int]*v2.Piece, blackBoard map[int]*v2.Piece) {
 	forbiddenSquares := make(map[int]struct{})
 	var check bool
 
@@ -13,7 +11,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 		piece.PinnedToKing = false
 	}
 
-	var checkingPieces map[int]*pieces.Piece
+	var checkingPieces map[int]*v2.Piece
 	var kingPosition int
 
 	switch a.whitesTurn {
@@ -24,26 +22,26 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
-			if piece.Kind != pieces.Pawn {
+			if piece.Kind != v2.Pawn {
 				for forbidden := range piece.Options {
 					forbiddenSquares[forbidden] = struct{}{}
 				}
 			}
-			if piece.Kind == pieces.King {
-				piece.CheckingPieces = make(map[int]*pieces.Piece)
+			if piece.Kind == v2.King {
+				piece.CheckingPieces = make(map[int]*v2.Piece)
 			}
 		}
 
 		for position, piece := range whiteBoard {
 			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
-			if check && piece.Kind == pieces.King {
+			if check && piece.Kind == v2.King {
 				checkingPieces = piece.CheckingPieces
 				kingPosition = position
 			}
 		}
 		if check {
 			for _, piece := range whiteBoard {
-				if piece.Kind != pieces.King {
+				if piece.Kind != v2.King {
 					piece.RemoveOptionsDueToCheck(kingPosition, checkingPieces)
 				}
 			}
@@ -55,26 +53,26 @@ func (a *App) calculateAllPositions(whiteBoard map[int]*pieces.Piece, blackBoard
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
-			if piece.Kind != pieces.Pawn {
+			if piece.Kind != v2.Pawn {
 				for forbidden := range piece.Options {
 					forbiddenSquares[forbidden] = struct{}{}
 				}
 			}
-			if piece.Kind == pieces.King {
-				piece.CheckingPieces = make(map[int]*pieces.Piece)
+			if piece.Kind == v2.King {
+				piece.CheckingPieces = make(map[int]*v2.Piece)
 			}
 		}
 
 		for position, piece := range blackBoard {
 			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
-			if check && piece.Kind == pieces.King {
+			if check && piece.Kind == v2.King {
 				checkingPieces = piece.CheckingPieces
 				kingPosition = position
 			}
 		}
 		if check {
 			for _, piece := range blackBoard {
-				if piece.Kind != pieces.King {
+				if piece.Kind != v2.King {
 					piece.RemoveOptionsDueToCheck(kingPosition, checkingPieces)
 				}
 			}
