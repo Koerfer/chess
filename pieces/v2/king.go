@@ -1,16 +1,23 @@
 package v2
 
-func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}) map[int]struct{} {
+type King struct {
+	*Piece
+	HasBeenMoved   bool
+	CheckingPieces map[int]any
+	Checked        bool
+}
+
+func CalculateKingMoves(king *King, whiteBoard map[int]any, blackBoard map[int]any, position int, forbiddenSquares map[int]struct{}) map[int]struct{} {
 	newForbiddenSquares := make(map[int]struct{})
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
 
 	if _, ok := forbiddenSquares[position]; ok {
-		p.Checked = true
+		king.Checked = true
 	}
 
-	if p.White == false {
+	if king.White == false {
 		myBoard = blackBoard
 		opponentBoard = whiteBoard
 	}
@@ -28,9 +35,9 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
 	newPosition = position - 7
@@ -43,9 +50,9 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
 	newPosition = position + 7
@@ -58,9 +65,9 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
 	newPosition = position + 9
@@ -73,9 +80,9 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
 	newPosition = position - 1
@@ -88,9 +95,9 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
 	newPosition = position + 1
@@ -103,9 +110,9 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
 	newPosition = position + 8
@@ -118,9 +125,9 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
 	newPosition = position - 8
@@ -133,80 +140,70 @@ func (p *Piece) calculateKingMoves(whiteBoard map[int]*Piece, blackBoard map[int
 	} else if _, ok := myBoard[newPosition]; ok {
 		newForbiddenSquares[newPosition] = value
 	} else if _, ok := opponentBoard[newPosition]; ok {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	} else {
-		p.Options[newPosition] = value
+		king.Options[newPosition] = value
 	}
 
-	switch p.White {
+	switch king.White {
 	case true:
-		if p.HasBeenMoved {
+		if king.HasBeenMoved {
 			break
 		}
-		if rook, ok := whiteBoard[63]; ok {
+		rook, ok := whiteBoard[63]
+		if ok && CheckPieceKindFromAny(rook) == PieceKindRook {
+			rook := rook.(*Rook)
 			if !rook.HasBeenMoved {
 				if _, ok := forbiddenSquares[62]; !ok {
 					if _, ok := whiteBoard[62]; !ok {
 						if _, ok := whiteBoard[61]; !ok {
-							p.Options[62] = value
+							king.Options[62] = value
 						}
 					}
 				}
 			}
 		}
-		if rook, ok := whiteBoard[56]; ok {
+		rook, ok = whiteBoard[56]
+		if ok && CheckPieceKindFromAny(rook) == PieceKindRook {
+			rook := rook.(*Rook)
 			if !rook.HasBeenMoved {
 				if _, ok := forbiddenSquares[58]; !ok {
 					if _, ok := whiteBoard[59]; !ok {
 						if _, ok := whiteBoard[58]; !ok {
 							if _, ok := whiteBoard[57]; !ok {
-								p.Options[58] = value
+								king.Options[58] = value
 							}
 						}
 					}
 				}
 			}
 		}
-
-		if p.HasBeenMoved {
-			break
-		}
-		if rook, ok := blackBoard[63]; ok {
-			if !rook.HasBeenMoved {
-				if _, ok := forbiddenSquares[62]; !ok {
-					p.Options[62] = value
-				}
-			}
-		}
-		if rook, ok := blackBoard[56]; ok {
-			if !rook.HasBeenMoved {
-				if _, ok := forbiddenSquares[58]; !ok {
-					p.Options[58] = value
-				}
-			}
-		}
 	case false:
-		if p.HasBeenMoved {
+		if king.HasBeenMoved {
 			break
 		}
-		if rook, ok := blackBoard[7]; ok {
+		rook, ok := blackBoard[7]
+		if ok && CheckPieceKindFromAny(rook) == PieceKindRook {
+			rook := rook.(*Rook)
 			if !rook.HasBeenMoved {
 				if _, ok := forbiddenSquares[6]; !ok {
 					if _, ok := blackBoard[6]; !ok {
 						if _, ok := blackBoard[5]; !ok {
-							p.Options[6] = value
+							king.Options[6] = value
 						}
 					}
 				}
 			}
 		}
-		if rook, ok := blackBoard[0]; ok {
+		rook, ok = blackBoard[0]
+		if ok && CheckPieceKindFromAny(rook) == PieceKindRook {
+			rook := rook.(*Rook)
 			if !rook.HasBeenMoved {
 				if _, ok := forbiddenSquares[2]; !ok {
 					if _, ok := blackBoard[3]; !ok {
 						if _, ok := blackBoard[2]; !ok {
 							if _, ok := blackBoard[1]; !ok {
-								p.Options[2] = value
+								king.Options[2] = value
 							}
 						}
 					}

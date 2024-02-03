@@ -1,79 +1,117 @@
 package v2
 
-func (a *App) calculateAllPositions(whiteBoard map[int]*v2.Piece, blackBoard map[int]*v2.Piece) {
+import (
+	v2 "chess/pieces/v2"
+	"log"
+)
+
+func resetPinned(piece any) {
+	switch v2.CheckPieceKindFromAny(piece) {
+	case v2.PieceKindPawn:
+		p := piece.(*v2.Pawn)
+		p.PinnedToKing = false
+	case v2.PieceKindKnight:
+		p := piece.(*v2.Knight)
+		p.PinnedToKing = false
+	case v2.PieceKindBishop:
+		p := piece.(*v2.Bishop)
+		p.PinnedToKing = false
+	case v2.PieceKindRook:
+		p := piece.(*v2.Rook)
+		p.PinnedToKing = false
+	case v2.PieceKindQueen:
+		p := piece.(*v2.Queen)
+		p.PinnedToKing = false
+	case v2.PieceKindKing:
+		p := piece.(*v2.King)
+		p.Checked = false
+	case v2.PieceKindInvalid:
+		log.Fatal("invalid piece kind when resetting pinned")
+	}
+}
+
+func (a *App) calculateAllPositions(whiteBoard map[int]any, blackBoard map[int]any) {
 	forbiddenSquares := make(map[int]struct{})
 	var check bool
 
 	for _, piece := range whiteBoard {
-		piece.PinnedToKing = false
+		resetPinned(piece)
 	}
 	for _, piece := range blackBoard {
-		piece.PinnedToKing = false
+		resetPinned(piece)
 	}
 
-	var checkingPieces map[int]*v2.Piece
+	var checkingPieces map[int]any
 	var kingPosition int
 
 	switch a.whitesTurn {
 	case true:
 		for position, piece := range blackBoard {
-			forbiddenCaptures, tmpCheck := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
-			check = check || tmpCheck
+			forbiddenCaptures := v2.CalculateOptions(piece, whiteBoard, blackBoard, position, nil, false)
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
-			if piece.Kind != v2.Pawn {
-				for forbidden := range piece.Options {
-					forbiddenSquares[forbidden] = struct{}{}
-				}
+			if v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
+				p := piece.(*v2.King)
+				p.CheckingPieces = make(map[int]any)
 			}
-			if piece.Kind == v2.King {
-				piece.CheckingPieces = make(map[int]*v2.Piece)
+		}
+
+		for _, piece := range whiteBoard {
+			if v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
+				p := piece.(*v2.King)
+				check = p.Checked
+				break
 			}
 		}
 
 		for position, piece := range whiteBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
-			if check && piece.Kind == v2.King {
-				checkingPieces = piece.CheckingPieces
+			v2.CalculateOptions(piece, whiteBoard, blackBoard, position, forbiddenSquares, true)
+			if check && v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
+				p := piece.(*v2.King)
+				checkingPieces = p.CheckingPieces
 				kingPosition = position
 			}
 		}
 		if check {
 			for _, piece := range whiteBoard {
-				if piece.Kind != v2.King {
-					piece.RemoveOptionsDueToCheck(kingPosition, checkingPieces)
+				if v2.CheckPieceKindFromAny(piece) != v2.PieceKindKing {
+					v2.RemoveOptionsDueToCheck(piece, kingPosition, checkingPieces)
 				}
 			}
 		}
 	case false:
 		for position, piece := range whiteBoard {
-			forbiddenCaptures, tmpCheck := piece.CalculateOptions(whiteBoard, blackBoard, position, nil, false)
-			check = check || tmpCheck
+			forbiddenCaptures := v2.CalculateOptions(piece, whiteBoard, blackBoard, position, nil, false)
 			for forbidden := range forbiddenCaptures {
 				forbiddenSquares[forbidden] = struct{}{}
 			}
-			if piece.Kind != v2.Pawn {
-				for forbidden := range piece.Options {
-					forbiddenSquares[forbidden] = struct{}{}
-				}
+			if v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
+				p := piece.(*v2.King)
+				p.CheckingPieces = make(map[int]any)
 			}
-			if piece.Kind == v2.King {
-				piece.CheckingPieces = make(map[int]*v2.Piece)
+		}
+
+		for _, piece := range blackBoard {
+			if v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
+				p := piece.(*v2.King)
+				check = p.Checked
+				break
 			}
 		}
 
 		for position, piece := range blackBoard {
-			piece.CalculateOptions(whiteBoard, blackBoard, position, forbiddenSquares, true)
-			if check && piece.Kind == v2.King {
-				checkingPieces = piece.CheckingPieces
+			v2.CalculateOptions(piece, whiteBoard, blackBoard, position, forbiddenSquares, true)
+			if check && v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
+				p := piece.(*v2.King)
+				checkingPieces = p.CheckingPieces
 				kingPosition = position
 			}
 		}
 		if check {
 			for _, piece := range blackBoard {
-				if piece.Kind != v2.King {
-					piece.RemoveOptionsDueToCheck(kingPosition, checkingPieces)
+				if v2.CheckPieceKindFromAny(piece) != v2.PieceKindKing {
+					v2.RemoveOptionsDueToCheck(piece, kingPosition, checkingPieces)
 				}
 			}
 		}

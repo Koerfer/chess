@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"log"
 	"math"
-	"time"
 )
 
 const (
@@ -38,13 +38,11 @@ type App struct {
 	op        ebiten.DrawImageOptions
 	initiated bool
 
-	whiteBoard map[int]*v2.Piece
-	blackBoard map[int]*v2.Piece
+	whiteBoard map[int]any
+	blackBoard map[int]any
 
 	whitesTurn    bool
-	selectedPiece *v2.Piece
-
-	engine v2.Engine
+	selectedPiece any
 }
 
 func (a *App) Update() error {
@@ -53,7 +51,7 @@ func (a *App) Update() error {
 	}
 	a.touchIDs = ebiten.AppendTouchIDs(a.touchIDs[:0])
 
-	var board map[int]*v2.Piece
+	var board map[int]any
 	switch a.whitesTurn {
 	case true:
 		board = a.whiteBoard
@@ -66,35 +64,6 @@ func (a *App) Update() error {
 	}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		if !a.whitesTurn {
-			start := time.Now()
-			fmt.Println("Starting")
-			node := a.engine.Start(a.whiteBoard, a.blackBoard, 0, a.whitesTurn)
-			if node == nil {
-				return nil
-			}
-			option := node.GetData()
-			a.selectedPiece = option.Piece
-
-			if option.EnPassant != 0 {
-				if stop := a.enPassant(option.EnPassant, board); stop {
-					duration := time.Since(start)
-					fmt.Println(duration)
-					return nil
-				}
-			}
-
-			if stop := a.normal(option.MoveTo, board); stop {
-				duration := time.Since(start)
-				fmt.Println(duration)
-				return nil
-			}
-
-			duration := time.Since(start)
-			fmt.Println(duration)
-			return nil
-		}
-
 		x, y := ebiten.CursorPosition()
 		X := int(math.Floor(float64(x) / (ScreenWidth / 8)))
 		Y := int(math.Floor(float64(y) / (ScreenHeight / 8)))
@@ -104,28 +73,84 @@ func (a *App) Update() error {
 		}
 
 		if piece, ok := board[position]; ok {
-			piece.LastPosition = position
-			a.selectedPiece = piece
+			switch v2.CheckPieceKindFromAny(piece) {
+			case v2.PieceKindPawn:
+				p := piece.(*v2.Pawn)
+				p.LastPosition = position
+				a.selectedPiece = p
+			case v2.PieceKindKnight:
+				p := piece.(*v2.Knight)
+				p.LastPosition = position
+				a.selectedPiece = p
+			case v2.PieceKindBishop:
+				p := piece.(*v2.Bishop)
+				p.LastPosition = position
+				a.selectedPiece = p
+			case v2.PieceKindRook:
+				p := piece.(*v2.Rook)
+				p.LastPosition = position
+				a.selectedPiece = p
+			case v2.PieceKindQueen:
+				p := piece.(*v2.Queen)
+				p.LastPosition = position
+				a.selectedPiece = p
+			case v2.PieceKindKing:
+				p := piece.(*v2.King)
+				p.LastPosition = position
+				a.selectedPiece = p
+			case v2.PieceKindInvalid:
+				log.Fatal("invalid piece kind getting piece where clicked")
+			}
 		}
 
 		if a.selectedPiece == nil {
 			return nil
 		}
 
-		if stop := a.enPassant(position, board); stop {
-			return nil
-		}
-
-		if stop := a.normal(position, board); stop {
-			return nil
+		switch v2.CheckPieceKindFromAny(a.selectedPiece) {
+		case v2.PieceKindPawn:
+			p := a.selectedPiece.(*v2.Pawn)
+			if stop := a.enPassant(p, position, board); stop {
+				return nil
+			}
+			if stop := a.normalPawn(p, position, board); stop {
+				return nil
+			}
+		case v2.PieceKindKnight:
+			p := a.selectedPiece.(*v2.Knight)
+			if stop := a.normalKnight(p, position, board); stop {
+				return nil
+			}
+		case v2.PieceKindBishop:
+			p := a.selectedPiece.(*v2.Bishop)
+			if stop := a.normalBishop(p, position, board); stop {
+				return nil
+			}
+		case v2.PieceKindRook:
+			p := a.selectedPiece.(*v2.Rook)
+			if stop := a.normalRook(p, position, board); stop {
+				return nil
+			}
+		case v2.PieceKindQueen:
+			p := a.selectedPiece.(*v2.Queen)
+			if stop := a.normalQueen(p, position, board); stop {
+				return nil
+			}
+		case v2.PieceKindKing:
+			p := a.selectedPiece.(*v2.King)
+			if stop := a.normalKing(p, position, board); stop {
+				return nil
+			}
+		case v2.PieceKindInvalid:
+			log.Fatal("invalid piece kind getting piece where clicked")
 		}
 	}
 
 	return nil
 }
 
-func (a *App) enPassant(position int, board map[int]*v2.Piece) bool {
-	for option, take := range a.selectedPiece.EnPassantOptions {
+func (a *App) enPassant(pawn *v2.Pawn, position int, board map[int]any) bool {
+	for option, take := range pawn.EnPassantOptions {
 		if position != option {
 			continue
 		}
@@ -138,7 +163,7 @@ func (a *App) enPassant(position int, board map[int]*v2.Piece) bool {
 		}
 
 		board[option] = a.selectedPiece
-		delete(board, a.selectedPiece.LastPosition)
+		delete(board, pawn.LastPosition)
 		a.selectedPiece = nil
 
 		a.whitesTurn = !a.whitesTurn
@@ -149,20 +174,29 @@ func (a *App) enPassant(position int, board map[int]*v2.Piece) bool {
 	return false
 }
 
-func (a *App) normal(position int, board map[int]*v2.Piece) bool {
-	for option := range a.selectedPiece.Options {
+func (a *App) normalPawn(pawn *v2.Pawn, position int, board map[int]any) bool {
+	for option := range pawn.Options {
 		if position != option {
 			continue
 		}
 
-		if a.selectedPiece.Kind == v2.Pawn {
-			end := 7
-			if a.selectedPiece.White == true {
-				end = 0
+		end := 7
+		if pawn.White == true {
+			end = 0
+		}
+		if position/8 == end {
+			board[position] = &v2.Queen{
+				Piece: &v2.Piece{
+					White:        pawn.White,
+					LastPosition: pawn.LastPosition,
+					Options:      make(map[int]struct{}),
+				},
+				PinnedToKing:     false,
+				PinnedByPosition: 0,
+				PinnedByPiece:    nil,
 			}
-			if position/8 == end {
-				a.selectedPiece.Kind = v2.Queen // todo: add convert to better Piece logic
-			}
+		} else {
+			board[option] = pawn
 		}
 
 		switch a.whitesTurn {
@@ -172,17 +206,7 @@ func (a *App) normal(position int, board map[int]*v2.Piece) bool {
 			delete(a.whiteBoard, position)
 		}
 
-		if a.selectedPiece.Kind == v2.King && !a.selectedPiece.HasBeenMoved {
-			castled := a.castle(option, board)
-			if castled {
-				return true
-			}
-		}
-
-		a.selectedPiece.HasBeenMoved = true
-
-		board[option] = a.selectedPiece
-		delete(board, a.selectedPiece.LastPosition)
+		delete(board, pawn.LastPosition)
 		a.selectedPiece = nil
 
 		a.whitesTurn = !a.whitesTurn
@@ -193,14 +217,177 @@ func (a *App) normal(position int, board map[int]*v2.Piece) bool {
 	return false
 }
 
-func win(board map[int]*v2.Piece, colour bool) bool {
+func (a *App) normalKnight(knight *v2.Knight, position int, board map[int]any) bool {
+	for option := range knight.Options {
+		if position != option {
+			continue
+		}
+
+		switch a.whitesTurn {
+		case true:
+			delete(a.blackBoard, position)
+		case false:
+			delete(a.whiteBoard, position)
+		}
+
+		board[option] = a.selectedPiece
+		delete(board, knight.LastPosition)
+		a.selectedPiece = nil
+
+		a.whitesTurn = !a.whitesTurn
+		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+		return true
+	}
+
+	return false
+}
+
+func (a *App) normalRook(rook *v2.Rook, position int, board map[int]any) bool {
+	for option := range rook.Options {
+		if position != option {
+			continue
+		}
+
+		switch a.whitesTurn {
+		case true:
+			delete(a.blackBoard, position)
+		case false:
+			delete(a.whiteBoard, position)
+		}
+
+		board[option] = a.selectedPiece
+		delete(board, rook.LastPosition)
+		a.selectedPiece = nil
+
+		a.whitesTurn = !a.whitesTurn
+		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+		return true
+	}
+
+	return false
+}
+
+func (a *App) normalBishop(bishop *v2.Bishop, position int, board map[int]any) bool {
+	for option := range bishop.Options {
+		if position != option {
+			continue
+		}
+
+		switch a.whitesTurn {
+		case true:
+			delete(a.blackBoard, position)
+		case false:
+			delete(a.whiteBoard, position)
+		}
+
+		board[option] = a.selectedPiece
+		delete(board, bishop.LastPosition)
+		a.selectedPiece = nil
+
+		a.whitesTurn = !a.whitesTurn
+		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+		return true
+	}
+
+	return false
+}
+
+func (a *App) normalQueen(queen *v2.Queen, position int, board map[int]any) bool {
+	for option := range queen.Options {
+		if position != option {
+			continue
+		}
+
+		switch a.whitesTurn {
+		case true:
+			delete(a.blackBoard, position)
+		case false:
+			delete(a.whiteBoard, position)
+		}
+
+		board[option] = a.selectedPiece
+		delete(board, queen.LastPosition)
+		a.selectedPiece = nil
+
+		a.whitesTurn = !a.whitesTurn
+		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+		return true
+	}
+
+	return false
+}
+
+func (a *App) normalKing(king *v2.King, position int, board map[int]any) bool {
+	for option := range king.Options {
+		if position != option {
+			continue
+		}
+
+		switch a.whitesTurn {
+		case true:
+			delete(a.blackBoard, position)
+		case false:
+			delete(a.whiteBoard, position)
+		}
+
+		if !king.HasBeenMoved {
+			castled := a.castle(king, option, board)
+			if castled {
+				return true
+			}
+		}
+
+		king.HasBeenMoved = true
+
+		board[option] = a.selectedPiece
+		delete(board, king.LastPosition)
+		a.selectedPiece = nil
+
+		a.whitesTurn = !a.whitesTurn
+		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+		return true
+	}
+
+	return false
+}
+
+func win(board map[int]any, colour bool) bool {
 	var checked bool
 	for _, piece := range board {
-		if len(piece.Options) != 0 {
-			return false
-		}
-		if piece.Kind == v2.King {
-			checked = piece.Checked
+		switch v2.CheckPieceKindFromAny(piece) {
+		case v2.PieceKindPawn:
+			p := piece.(*v2.Pawn)
+			if len(p.Options) != 0 {
+				return false
+			}
+		case v2.PieceKindKnight:
+			p := piece.(*v2.Knight)
+			if len(p.Options) != 0 {
+				return false
+			}
+		case v2.PieceKindBishop:
+			p := piece.(*v2.Bishop)
+			if len(p.Options) != 0 {
+				return false
+			}
+		case v2.PieceKindRook:
+			p := piece.(*v2.Rook)
+			if len(p.Options) != 0 {
+				return false
+			}
+		case v2.PieceKindQueen:
+			p := piece.(*v2.Queen)
+			if len(p.Options) != 0 {
+				return false
+			}
+		case v2.PieceKindKing:
+			p := piece.(*v2.King)
+			checked = p.Checked
+			if len(p.Options) != 0 {
+				return false
+			}
+		case v2.PieceKindInvalid:
+			log.Fatal("invalid piece kind when checking if win")
 		}
 	}
 

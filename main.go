@@ -12,7 +12,7 @@ func main() {
 	ebiten.SetWindowSize(v1.ScreenWidth, v1.ScreenHeight)
 	ebiten.SetWindowTitle("Chess")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
-	version := 1
+	version := 2
 
 	switch version {
 	case 1:

@@ -1,6 +1,7 @@
 package v2
 
 import (
+	v2 "chess/pieces/v2"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/jpeg"
 	"image/png"
@@ -10,76 +11,161 @@ import (
 
 func (a *App) initWhiteBoard() {
 	a.whitesTurn = true
-	a.whiteBoard = make(map[int]*v2.Piece)
-	a.addPiece(56, v2.Rook, true)
-	a.addPiece(57, v2.Knight, true)
-	a.addPiece(58, v2.Bishop, true)
-	a.addPiece(59, v2.Queen, true)
-	a.addPiece(60, v2.King, true)
-	a.addPiece(61, v2.Bishop, true)
-	a.addPiece(62, v2.Knight, true)
-	a.addPiece(63, v2.Rook, true)
+	a.whiteBoard = make(map[int]any)
+	a.addPiece(56, v2.PieceKindRook, true)
+	a.addPiece(57, v2.PieceKindKnight, true)
+	a.addPiece(58, v2.PieceKindBishop, true)
+	a.addPiece(59, v2.PieceKindQueen, true)
+	a.addPiece(60, v2.PieceKindKing, true)
+	a.addPiece(61, v2.PieceKindBishop, true)
+	a.addPiece(62, v2.PieceKindKnight, true)
+	a.addPiece(63, v2.PieceKindRook, true)
 
-	a.addPiece(48, v2.Pawn, true)
-	a.addPiece(49, v2.Pawn, true)
-	a.addPiece(50, v2.Pawn, true)
-	a.addPiece(51, v2.Pawn, true)
-	a.addPiece(52, v2.Pawn, true)
-	a.addPiece(53, v2.Pawn, true)
-	a.addPiece(54, v2.Pawn, true)
-	a.addPiece(55, v2.Pawn, true)
+	a.addPiece(48, v2.PieceKindPawn, true)
+	a.addPiece(49, v2.PieceKindPawn, true)
+	a.addPiece(50, v2.PieceKindPawn, true)
+	a.addPiece(51, v2.PieceKindPawn, true)
+	a.addPiece(52, v2.PieceKindPawn, true)
+	a.addPiece(53, v2.PieceKindPawn, true)
+	a.addPiece(54, v2.PieceKindPawn, true)
+	a.addPiece(55, v2.PieceKindPawn, true)
 }
 
 func (a *App) initBlackBoard() {
-	a.blackBoard = make(map[int]*v2.Piece)
-	a.addPiece(0, v2.Rook, false)
-	a.addPiece(1, v2.Knight, false)
-	a.addPiece(2, v2.Bishop, false)
-	a.addPiece(3, v2.Queen, false)
-	a.addPiece(4, v2.King, false)
-	a.addPiece(5, v2.Bishop, false)
-	a.addPiece(6, v2.Knight, false)
-	a.addPiece(7, v2.Rook, false)
+	a.blackBoard = make(map[int]any)
+	a.addPiece(0, v2.PieceKindRook, false)
+	a.addPiece(1, v2.PieceKindKnight, false)
+	a.addPiece(2, v2.PieceKindBishop, false)
+	a.addPiece(3, v2.PieceKindQueen, false)
+	a.addPiece(4, v2.PieceKindKing, false)
+	a.addPiece(5, v2.PieceKindBishop, false)
+	a.addPiece(6, v2.PieceKindKnight, false)
+	a.addPiece(7, v2.PieceKindRook, false)
 
-	a.addPiece(8, v2.Pawn, false)
-	a.addPiece(9, v2.Pawn, false)
-	a.addPiece(10, v2.Pawn, false)
-	a.addPiece(11, v2.Pawn, false)
-	a.addPiece(12, v2.Pawn, false)
-	a.addPiece(13, v2.Pawn, false)
-	a.addPiece(14, v2.Pawn, false)
-	a.addPiece(15, v2.Pawn, false)
+	a.addPiece(8, v2.PieceKindPawn, false)
+	a.addPiece(9, v2.PieceKindPawn, false)
+	a.addPiece(10, v2.PieceKindPawn, false)
+	a.addPiece(11, v2.PieceKindPawn, false)
+	a.addPiece(12, v2.PieceKindPawn, false)
+	a.addPiece(13, v2.PieceKindPawn, false)
+	a.addPiece(14, v2.PieceKindPawn, false)
+	a.addPiece(15, v2.PieceKindPawn, false)
 }
 
 func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 	switch white {
 	case true:
-		a.whiteBoard[pos] = &v2.Piece{
-			Kind:         kind,
-			White:        white,
-			Options:      make(map[int]struct{}),
-			LastPosition: pos,
-		}
-		if kind == v2.King {
-			a.whiteBoard[pos].CheckingPieces = make(map[int]*v2.Piece)
-		}
-		if kind == v2.Pawn {
-			a.whiteBoard[pos].EnPassantOptions = make(map[int]int)
+		switch kind {
+		case v2.PieceKindPawn:
+			a.whiteBoard[pos] = &v2.Pawn{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+				EnPassantOptions: make(map[int]int),
+			}
+		case v2.PieceKindKnight:
+			a.whiteBoard[pos] = &v2.Knight{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindBishop:
+			a.whiteBoard[pos] = &v2.Bishop{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindRook:
+			a.whiteBoard[pos] = &v2.Rook{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindQueen:
+			a.whiteBoard[pos] = &v2.Queen{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindKing:
+			a.whiteBoard[pos] = &v2.King{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+				CheckingPieces: make(map[int]any),
+			}
+		case v2.PieceKindInvalid:
+			log.Fatal("invalid piece kind when initialising board")
 		}
 	case false:
-		a.blackBoard[pos] = &v2.Piece{
-			Kind:         kind,
-			White:        white,
-			Options:      make(map[int]struct{}),
-			LastPosition: pos,
-		}
-		if kind == v2.King {
-			a.blackBoard[pos].CheckingPieces = make(map[int]*v2.Piece)
-		}
-		if kind == v2.Pawn {
-			a.blackBoard[pos].EnPassantOptions = make(map[int]int)
+		switch kind {
+		case v2.PieceKindPawn:
+			a.blackBoard[pos] = &v2.Pawn{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+				EnPassantOptions: make(map[int]int),
+			}
+		case v2.PieceKindKnight:
+			a.blackBoard[pos] = &v2.Knight{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindBishop:
+			a.blackBoard[pos] = &v2.Bishop{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindRook:
+			a.blackBoard[pos] = &v2.Rook{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindQueen:
+			a.blackBoard[pos] = &v2.Queen{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+			}
+		case v2.PieceKindKing:
+			a.blackBoard[pos] = &v2.King{
+				Piece: &v2.Piece{
+					White:        white,
+					LastPosition: pos,
+					Options:      make(map[int]struct{}),
+				},
+				CheckingPieces: make(map[int]any),
+			}
+		case v2.PieceKindInvalid:
+			log.Fatal("invalid piece kind when initialising board")
 		}
 	}
+
 }
 
 func (a *App) initImages() {

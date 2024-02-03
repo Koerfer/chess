@@ -1,45 +1,40 @@
 package v2
 
+import (
+	"log"
+)
+
 var value struct{}
 
-func (p *Piece) CalculateOptions(whiteBoard map[int]*Piece, blackBoard map[int]*Piece, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) (map[int]struct{}, bool) {
-	p.Options = make(map[int]struct{})
-
-	switch p.Kind {
-	case Pawn:
-		return p.calculatePawnMoves(whiteBoard, blackBoard, position, fixLastPosition)
-	case Knight:
-		return p.calculateKnightMoves(whiteBoard, blackBoard, position)
-	case Bishop:
-		return p.calculateBishopMoves(whiteBoard, blackBoard, position)
-	case Rook:
-		return p.calculateRookMoves(whiteBoard, blackBoard, position)
-	case Queen:
-		forbiddenDiagonal, check1 := p.calculateBishopMoves(whiteBoard, blackBoard, position)
-		forbidden, check2 := p.calculateRookMoves(whiteBoard, blackBoard, position)
-		return mergeMaps(forbiddenDiagonal, forbidden), check1 || check2
-	case King:
-		return p.calculateKingMoves(whiteBoard, blackBoard, position, forbiddenSquares), false
+func CalculateOptions(piece any, whiteBoard map[int]any, blackBoard map[int]any, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
+	switch CheckPieceKindFromAny(piece) {
+	case PieceKindPawn:
+		p := piece.(*Pawn)
+		p.Options = make(map[int]struct{})
+		return CalculatePawnMoves(p, whiteBoard, blackBoard, position, fixLastPosition)
+	case PieceKindKnight:
+		p := piece.(*Knight)
+		p.Options = make(map[int]struct{})
+		return CalculateKnightMoves(p, whiteBoard, blackBoard, position)
+	case PieceKindBishop:
+		p := piece.(*Bishop)
+		p.Options = make(map[int]struct{})
+		return CalculateBishopMoves(p, whiteBoard, blackBoard, position)
+	case PieceKindRook:
+		p := piece.(*Rook)
+		p.Options = make(map[int]struct{})
+		return CalculateRookMoves(p, whiteBoard, blackBoard, position)
+	case PieceKindQueen:
+		p := piece.(*Queen)
+		p.Options = make(map[int]struct{})
+		return CalculateQueenMoves(p, whiteBoard, blackBoard, position)
+	case PieceKindKing:
+		p := piece.(*King)
+		p.Options = make(map[int]struct{})
+		return CalculateKingMoves(p, whiteBoard, blackBoard, position, forbiddenSquares)
+	case PieceKindInvalid:
+		log.Fatal("invalid piece kind when calculating options")
 	}
 
-	return nil, false
-}
-
-func mergeMaps(m1 map[int]struct{}, m2 map[int]struct{}) map[int]struct{} {
-	for k, _ := range m2 {
-		m1[k] = value
-	}
-	return m1
-}
-
-func (p *Piece) simpleDelete(board map[int]*Piece) {
-	var toRemove []int
-	for option, _ := range p.Options {
-		if _, ok := board[option]; ok {
-			toRemove = append(toRemove, option)
-		}
-	}
-	for _, toDelete := range toRemove {
-		delete(p.Options, toDelete)
-	}
+	return nil
 }
