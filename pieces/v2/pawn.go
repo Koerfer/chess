@@ -1,18 +1,21 @@
 package v2
 
+import "log"
+
 type Pawn struct {
 	*Piece
 	EnPassantOptions map[int]int
 	PinnedToKing     bool
 	PinnedByPosition int
 	PinnedByPiece    any
+	AttackedBy       map[int]any
 }
 
-func CalculatePawnMoves(pawn *Pawn, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
+func (p *Pawn) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
-	pawn.EnPassantOptions = make(map[int]int)
+	p.EnPassantOptions = make(map[int]int)
 	if fixLastPosition {
-		pawn.LastPosition = position
+		p.LastPosition = position
 	}
 
 	myBoard := whiteBoard
@@ -20,7 +23,7 @@ func CalculatePawnMoves(pawn *Pawn, whiteBoard map[int]any, blackBoard map[int]a
 	endPosition := 0
 	offsetMultiplier := 1
 	offsetAddition := 0
-	if pawn.White == false {
+	if p.White == false {
 		myBoard = blackBoard
 		opponentBoard = whiteBoard
 		endPosition = 7
@@ -31,58 +34,65 @@ func CalculatePawnMoves(pawn *Pawn, whiteBoard map[int]any, blackBoard map[int]a
 	// comments are from white perspective, flipped for black
 	if position%8 == 0 { // if left on board
 		captureOption := position - (7+offsetAddition)*offsetMultiplier
-		calculateCaptureOption(pawn, position, endPosition, captureOption, 1, offsetMultiplier, forbiddenSquares, opponentBoard)
+		p.calculateCaptureOption(position, endPosition, captureOption, 1, offsetMultiplier, forbiddenSquares, myBoard, opponentBoard)
 	} else if position%8 == 7 { // if right on board
 		captureOption := position - (9-offsetAddition)*offsetMultiplier
-		calculateCaptureOption(pawn, position, endPosition, captureOption, -1, offsetMultiplier, forbiddenSquares, opponentBoard)
+		p.calculateCaptureOption(position, endPosition, captureOption, -1, offsetMultiplier, forbiddenSquares, myBoard, opponentBoard)
 	} else { // if in middle
 		captureOption := position - (7+offsetAddition)*offsetMultiplier
-		calculateCaptureOption(pawn, position, endPosition, captureOption, 1, offsetMultiplier, forbiddenSquares, opponentBoard)
+		p.calculateCaptureOption(position, endPosition, captureOption, 1, offsetMultiplier, forbiddenSquares, myBoard, opponentBoard)
 		captureOption = position - (9-offsetAddition)*offsetMultiplier
-		calculateCaptureOption(pawn, position, endPosition, captureOption, -1, offsetMultiplier, forbiddenSquares, opponentBoard)
+		p.calculateCaptureOption(position, endPosition, captureOption, -1, offsetMultiplier, forbiddenSquares, myBoard, opponentBoard)
 	}
 
 	oneUp := position - 8*offsetMultiplier
 	twoUp := position - 16*offsetMultiplier
 	if position/8 == (endPosition + 6*offsetMultiplier) {
 		if _, ok := opponentBoard[position-16*offsetMultiplier]; ok {
-			pawn.Options[oneUp] = value
-			pawn.calculatePinnedOptions(position)
-			pawnDelete(pawn, myBoard)
+			p.Options[oneUp] = value
+			p.calculatePinnedOptions(position)
+			p.deleteOptions(myBoard)
 			return forbiddenSquares
 		}
 		if _, ok := myBoard[oneUp]; !ok {
 			if _, ok := opponentBoard[oneUp]; !ok {
-				pawn.Options[oneUp] = value
+				p.Options[oneUp] = value
 				if _, ok := myBoard[twoUp]; !ok {
 					if _, ok := opponentBoard[oneUp]; !ok {
-						pawn.Options[twoUp] = value
+						p.Options[twoUp] = value
 					}
 				}
 			}
 
 		}
-		pawn.calculatePinnedOptions(position)
+		p.calculatePinnedOptions(position)
 		return forbiddenSquares
 	}
 	if _, ok := opponentBoard[oneUp]; ok {
-		pawn.calculatePinnedOptions(position)
+		p.calculatePinnedOptions(position)
 		return forbiddenSquares
 	}
-	pawn.Options[position-8*offsetMultiplier] = value
-	pawn.calculatePinnedOptions(position)
-	pawnDelete(pawn, myBoard)
+	p.Options[position-8*offsetMultiplier] = value
+	p.calculatePinnedOptions(position)
+	p.deleteOptions(myBoard)
 	return forbiddenSquares
 }
 
-func calculateCaptureOption(pawn *Pawn, position int, endPosition int, captureOption int, direction int, offsetMultiplier int, forbiddenSquares map[int]struct{}, opponentBoard map[int]any) {
+func (p *Pawn) calculateCaptureOption(position int, endPosition int, captureOption int, direction int, offsetMultiplier int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) {
 	forbiddenSquares[captureOption] = value
+	if protectedPiece, ok := myBoard[captureOption]; ok {
+		forbiddenSquares[captureOption] = value
+		p.Protecting[captureOption] = protectedPiece
+	}
 	if capturePiece, ok := opponentBoard[captureOption]; ok { // if black Piece up right
-		pawn.Options[captureOption] = value // add capture move
+		p.Options[captureOption] = value // add capture move
+		if !p.PinnedToKing {
+			p.addAttackedBy(opponent, position)
+		}
 		if CheckPieceKindFromAny(capturePiece) == PieceKindKing {
-			p := capturePiece.(*King)
-			p.Checked = true
-			p.CheckingPieces[position] = pawn
+			king := capturePiece.(*King)
+			king.Checked = true
+			king.CheckingPieces[position] = king
 		}
 	}
 	if position/8 == endPosition+offsetMultiplier*3 {
@@ -91,8 +101,8 @@ func calculateCaptureOption(pawn *Pawn, position int, endPosition int, captureOp
 			// do nothing
 		} else {
 			if CheckPieceKindFromAny(piece) == PieceKindPawn {
-				p := piece.(*Pawn)
-				if p.LastPosition == (endPosition+offsetMultiplier)*8+(position+direction)%8 {
+				pawn := piece.(*Pawn)
+				if pawn.LastPosition == (endPosition+offsetMultiplier)*8+(position+direction)%8 {
 					pawn.EnPassantOptions[captureOption] = position + direction
 				}
 			}
@@ -102,6 +112,7 @@ func calculateCaptureOption(pawn *Pawn, position int, endPosition int, captureOp
 
 func (p *Pawn) calculatePinnedOptions(position int) {
 	if p.PinnedToKing {
+		p.Protecting = make(map[int]any)
 		for option := range p.Options {
 			if option == p.PinnedByPosition {
 				continue
@@ -156,14 +167,38 @@ func (p *Pawn) calculatePinnedOptions(position int) {
 	}
 }
 
-func pawnDelete(pawn *Pawn, board map[int]any) {
+func (p *Pawn) deleteOptions(board map[int]any) {
 	var toRemove []int
-	for option, _ := range pawn.Options {
+	for option, _ := range p.Options {
 		if _, ok := board[option]; ok {
 			toRemove = append(toRemove, option)
 		}
 	}
 	for _, toDelete := range toRemove {
-		delete(pawn.Options, toDelete)
+		delete(p.Options, toDelete)
+	}
+}
+
+func (p *Pawn) addAttackedBy(attackedPiece any, position int) {
+	switch CheckPieceKindFromAny(attackedPiece) {
+	case PieceKindPawn:
+		pawn := attackedPiece.(*Pawn)
+		pawn.AttackedBy[position] = p
+	case PieceKindKnight:
+		knight := attackedPiece.(*Knight)
+		knight.AttackedBy[position] = p
+	case PieceKindBishop:
+		bishop := attackedPiece.(*Bishop)
+		bishop.AttackedBy[position] = p
+	case PieceKindRook:
+		rook := attackedPiece.(*Rook)
+		rook.AttackedBy[position] = p
+	case PieceKindQueen:
+		queen := attackedPiece.(*Queen)
+		queen.AttackedBy[position] = p
+	case PieceKindKing:
+		// do nothing
+	case PieceKindInvalid:
+		log.Fatal("invalid piece kind when calculating attacked by bishop")
 	}
 }

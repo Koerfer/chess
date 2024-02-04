@@ -1,21 +1,24 @@
 package v2
 
+import "log"
+
 type Knight struct {
 	*Piece
 	PinnedToKing     bool
 	PinnedByPosition int
 	PinnedByPiece    any
+	AttackedBy       map[int]any
 }
 
-func CalculateKnightMoves(knight *Knight, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
+func (k *Knight) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
 	if fixLastPosition {
-		knight.LastPosition = position
+		k.LastPosition = position
 	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
-	if knight.White == false {
+	if k.White == false {
 		myBoard = blackBoard
 		opponentBoard = whiteBoard
 	}
@@ -27,74 +30,103 @@ func CalculateKnightMoves(knight *Knight, whiteBoard map[int]any, blackBoard map
 	if right-2 >= 0 { // left 2 ok
 		if down-1 >= 0 { // up 1 ok
 			newPosition := position + left*2 + up
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 		if down+1 <= 7 { // down 1 ok
 			newPosition := position + left*2 - up
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 	}
 
 	if right+2 <= 7 {
 		if down-1 >= 0 {
 			newPosition := position - left*2 + up
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 		if down+1 <= 7 {
 			newPosition := position - left*2 - up
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 	}
 
 	if down+2 <= 7 {
 		if right-1 >= 0 {
 			newPosition := position - up*2 + left
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 		if right+1 <= 7 {
 			newPosition := position - up*2 - left
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 	}
 
 	if down-2 >= 0 {
 		if right-1 >= 0 {
 			newPosition := position + up*2 + left
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 		if right+1 <= 7 {
 			newPosition := position + up*2 - left
-			calculateKnightOptions(knight, position, newPosition, opponentBoard, forbiddenSquares)
+			k.calculateOptions(position, newPosition, opponentBoard, forbiddenSquares)
 		}
 	}
 
-	knightDelete(knight, myBoard)
-	if knight.PinnedToKing {
-		knight.Options = make(map[int]struct{})
+	k.deleteOptions(myBoard)
+	if k.PinnedToKing {
+		k.Options = make(map[int]struct{})
+		k.Protecting = make(map[int]any)
 	}
 
 	return forbiddenSquares
 }
 
-func calculateKnightOptions(knight *Knight, position int, newPosition int, opponentBoard map[int]any, forbiddenSquares map[int]struct{}) {
+func (k *Knight) calculateOptions(position int, newPosition int, opponentBoard map[int]any, forbiddenSquares map[int]struct{}) {
 	opponent, ok := opponentBoard[newPosition]
+	if !k.PinnedToKing {
+		k.addAttackedBy(opponent, position)
+	}
 	if ok && CheckPieceKindFromAny(opponent) == PieceKindKing {
 		p := opponent.(*King)
 		p.Checked = true
-		p.CheckingPieces[position] = knight
+		p.CheckingPieces[position] = k
 	}
-	knight.Options[newPosition] = value
+	k.Options[newPosition] = value
 	forbiddenSquares[newPosition] = value
 }
 
-func knightDelete(knight *Knight, board map[int]any) {
+func (k *Knight) deleteOptions(board map[int]any) {
 	var toRemove []int
-	for option, _ := range knight.Options {
-		if _, ok := board[option]; ok {
+	for option, _ := range k.Options {
+		if protectedPiece, ok := board[option]; ok {
+			k.Protecting[option] = protectedPiece
 			toRemove = append(toRemove, option)
 		}
 	}
 	for _, toDelete := range toRemove {
-		delete(knight.Options, toDelete)
+		delete(k.Options, toDelete)
+	}
+}
+
+func (k *Knight) addAttackedBy(attackedPiece any, position int) {
+	switch CheckPieceKindFromAny(attackedPiece) {
+	case PieceKindPawn:
+		pawn := attackedPiece.(*Pawn)
+		pawn.AttackedBy[position] = k
+	case PieceKindKnight:
+		knight := attackedPiece.(*Knight)
+		knight.AttackedBy[position] = k
+	case PieceKindBishop:
+		bishop := attackedPiece.(*Bishop)
+		bishop.AttackedBy[position] = k
+	case PieceKindRook:
+		rook := attackedPiece.(*Rook)
+		rook.AttackedBy[position] = k
+	case PieceKindQueen:
+		queen := attackedPiece.(*Queen)
+		queen.AttackedBy[position] = k
+	case PieceKindKing:
+		// do nothing
+	case PieceKindInvalid:
+		log.Fatal("invalid piece kind when calculating attacked by knight")
 	}
 }

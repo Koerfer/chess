@@ -62,6 +62,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 				EnPassantOptions: make(map[int]int),
 			}
@@ -71,6 +72,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindBishop:
@@ -79,6 +81,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindRook:
@@ -87,6 +90,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindQueen:
@@ -95,6 +99,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindKing:
@@ -103,6 +108,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 				CheckingPieces: make(map[int]any),
 			}
@@ -117,6 +123,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 				EnPassantOptions: make(map[int]int),
 			}
@@ -126,6 +133,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindBishop:
@@ -134,6 +142,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindRook:
@@ -142,6 +151,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindQueen:
@@ -150,6 +160,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 			}
 		case v2.PieceKindKing:
@@ -158,6 +169,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					White:        white,
 					LastPosition: pos,
 					Options:      make(map[int]struct{}),
+					Protecting:   make(map[int]any),
 				},
 				CheckingPieces: make(map[int]any),
 			}

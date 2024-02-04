@@ -7,17 +7,18 @@ type Bishop struct {
 	PinnedToKing     bool
 	PinnedByPosition int
 	PinnedByPiece    any
+	AttackedBy       map[int]any
 }
 
-func CalculateBishopMoves(bishop *Bishop, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
+func (b *Bishop) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
 	if fixLastPosition {
-		bishop.LastPosition = position
+		b.LastPosition = position
 	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
-	if bishop.White == false {
+	if b.White == false {
 		myBoard = blackBoard
 		opponentBoard = whiteBoard
 	}
@@ -25,24 +26,24 @@ func CalculateBishopMoves(bishop *Bishop, whiteBoard map[int]any, blackBoard map
 	rowPos := position % 8
 	colPos := position / 8
 
-	forbidden := calculateBishopOptions(bishop, position, rowPos, -1, 9, 1, colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden := b.calculateOptions(position, rowPos, -1, 9, 1, colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateBishopOptions(bishop, position, rowPos, -1, 7, -1, colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = b.calculateOptions(position, rowPos, -1, 7, -1, colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateBishopOptions(bishop, position, rowPos, 1, 7, 1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = b.calculateOptions(position, rowPos, 1, 7, 1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateBishopOptions(bishop, position, rowPos, 1, 9, -1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = b.calculateOptions(position, rowPos, 1, 9, -1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	bishop.calculatePinnedOptions(position)
+	b.calculatePinnedOptions(position)
 
 	return forbiddenSquares
 }
 
-func calculateBishopOptions(bishop *Bishop, position int, rowPos int, down int, sideways int, beyondBoardMultiplier int, until int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (b *Bishop) calculateOptions(position int, rowPos int, down int, sideways int, beyondBoardMultiplier int, until int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
 	for up := 1; up <= until; up++ {
 		newPosition := position + down*up*sideways
 		if newPosition < 0 || newPosition > 63 {
@@ -51,17 +52,21 @@ func calculateBishopOptions(bishop *Bishop, position int, rowPos int, down int, 
 		if beyondBoardMultiplier*(rowPos-newPosition%8) < 0 {
 			return forbiddenSquares
 		}
-		if _, ok := myBoard[newPosition]; ok {
+		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
+			b.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
-			bishop.Options[newPosition] = value
+			b.Options[newPosition] = value
+			if !b.PinnedToKing {
+				b.addAttackedBy(opponent, position)
+			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
 				p.Checked = true
-				p.CheckingPieces[position] = bishop
+				p.CheckingPieces[position] = b
 				for upKing := up; upKing <= 8; upKing++ {
 					newPosition := position + down*upKing*sideways
 					if newPosition < 0 || newPosition > 63 {
@@ -120,7 +125,7 @@ func calculateBishopOptions(bishop *Bishop, position int, rowPos int, down int, 
 		}
 
 		forbiddenSquares[newPosition] = value
-		bishop.Options[newPosition] = value
+		b.Options[newPosition] = value
 	}
 
 	return forbiddenSquares
@@ -128,6 +133,7 @@ func calculateBishopOptions(bishop *Bishop, position int, rowPos int, down int, 
 
 func (b *Bishop) calculatePinnedOptions(position int) {
 	if b.PinnedToKing {
+		b.Protecting = make(map[int]any)
 		for option := range b.Options {
 			if option == b.PinnedByPosition {
 				continue
@@ -179,5 +185,29 @@ func (b *Bishop) calculatePinnedOptions(position int) {
 			}
 			delete(b.Options, option)
 		}
+	}
+}
+
+func (b *Bishop) addAttackedBy(attackedPiece any, position int) {
+	switch CheckPieceKindFromAny(attackedPiece) {
+	case PieceKindPawn:
+		pawn := attackedPiece.(*Pawn)
+		pawn.AttackedBy[position] = b
+	case PieceKindKnight:
+		knight := attackedPiece.(*Knight)
+		knight.AttackedBy[position] = b
+	case PieceKindBishop:
+		bishop := attackedPiece.(*Bishop)
+		bishop.AttackedBy[position] = b
+	case PieceKindRook:
+		rook := attackedPiece.(*Rook)
+		rook.AttackedBy[position] = b
+	case PieceKindQueen:
+		queen := attackedPiece.(*Queen)
+		queen.AttackedBy[position] = b
+	case PieceKindKing:
+		// do nothing
+	case PieceKindInvalid:
+		log.Fatal("invalid piece kind when calculating attacked by bishop")
 	}
 }

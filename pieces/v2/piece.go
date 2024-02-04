@@ -8,6 +8,7 @@ type Piece struct {
 	White          bool
 	LastPosition   int
 	Options        map[int]struct{}
+	Protecting     map[int]any
 }
 
 type PieceKind int8

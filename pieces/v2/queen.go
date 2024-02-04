@@ -7,6 +7,7 @@ type Queen struct {
 	PinnedToKing     bool
 	PinnedByPosition int
 	PinnedByPiece    any
+	AttackedBy       map[int]any
 }
 
 func CalculateQueenMoves(queen *Queen, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
@@ -66,8 +67,9 @@ func calculateQueenDiagonalOptions(queen *Queen, position int, rowPos int, down 
 		if beyondBoardMultiplier*(rowPos-newPosition%8) < 0 {
 			return forbiddenSquares
 		}
-		if _, ok := myBoard[newPosition]; ok {
+		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
+			queen.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
@@ -150,8 +152,9 @@ func calculateQueenHorizontalOptions(queen *Queen, position int, rowPos int, rig
 		if rowPos-newPosition/8 != 0 {
 			return forbiddenSquares
 		}
-		if _, ok := myBoard[newPosition]; ok {
+		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
+			queen.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
@@ -233,8 +236,9 @@ func calculateQueenVerticalOptions(queen *Queen, position int, colPos int, down 
 		if colPos-newPosition%8 != 0 {
 			return forbiddenSquares
 		}
-		if _, ok := myBoard[newPosition]; ok {
+		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
+			queen.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
@@ -309,6 +313,7 @@ func calculateQueenVerticalOptions(queen *Queen, position int, colPos int, down 
 
 func (q *Queen) calculatePinnedOptions(position int) {
 	if q.PinnedToKing {
+		q.Protecting = make(map[int]any)
 		for option := range q.Options {
 			if option == q.PinnedByPosition {
 				continue

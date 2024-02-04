@@ -8,6 +8,7 @@ type Rook struct {
 	PinnedByPosition int
 	PinnedByPiece    any
 	HasBeenMoved     bool
+	AttackedBy       map[int]any
 }
 
 func CalculateRookMoves(rook *Rook, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
@@ -52,8 +53,9 @@ func calculateRookHorizontalOptions(rook *Rook, position int, rowPos int, right 
 		if rowPos-newPosition/8 != 0 {
 			return forbiddenSquares
 		}
-		if _, ok := myBoard[newPosition]; ok {
+		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
+			rook.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
@@ -135,8 +137,9 @@ func calculateRookVerticalOptions(rook *Rook, position int, colPos int, down int
 		if colPos-newPosition%8 != 0 {
 			return forbiddenSquares
 		}
-		if _, ok := myBoard[newPosition]; ok {
+		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
+			rook.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
@@ -211,6 +214,7 @@ func calculateRookVerticalOptions(rook *Rook, position int, colPos int, down int
 
 func (r *Rook) calculatePinnedOptions(position int) {
 	if r.PinnedToKing {
+		r.Protecting = make(map[int]any)
 		for option := range r.Options {
 			if option == r.PinnedByPosition {
 				continue
