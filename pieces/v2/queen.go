@@ -9,8 +9,11 @@ type Queen struct {
 	PinnedByPiece    any
 }
 
-func CalculateQueenMoves(queen *Queen, whiteBoard map[int]any, blackBoard map[int]any, position int) map[int]struct{} {
+func CalculateQueenMoves(queen *Queen, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
+	if fixLastPosition {
+		queen.LastPosition = position
+	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard

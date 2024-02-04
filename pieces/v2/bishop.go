@@ -9,8 +9,11 @@ type Bishop struct {
 	PinnedByPiece    any
 }
 
-func CalculateBishopMoves(bishop *Bishop, whiteBoard map[int]any, blackBoard map[int]any, position int) map[int]struct{} {
+func CalculateBishopMoves(bishop *Bishop, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
+	if fixLastPosition {
+		bishop.LastPosition = position
+	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard

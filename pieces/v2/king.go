@@ -7,8 +7,11 @@ type King struct {
 	Checked        bool
 }
 
-func CalculateKingMoves(king *King, whiteBoard map[int]any, blackBoard map[int]any, position int, forbiddenSquares map[int]struct{}) map[int]struct{} {
+func CalculateKingMoves(king *King, whiteBoard map[int]any, blackBoard map[int]any, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
 	newForbiddenSquares := make(map[int]struct{})
+	if fixLastPosition {
+		king.LastPosition = position
+	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard

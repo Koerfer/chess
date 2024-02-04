@@ -7,8 +7,11 @@ type Knight struct {
 	PinnedByPiece    any
 }
 
-func CalculateKnightMoves(knight *Knight, whiteBoard map[int]any, blackBoard map[int]any, position int) map[int]struct{} {
+func CalculateKnightMoves(knight *Knight, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
+	if fixLastPosition {
+		knight.LastPosition = position
+	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard

@@ -10,8 +10,11 @@ type Rook struct {
 	HasBeenMoved     bool
 }
 
-func CalculateRookMoves(rook *Rook, whiteBoard map[int]any, blackBoard map[int]any, position int) map[int]struct{} {
+func CalculateRookMoves(rook *Rook, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
+	if fixLastPosition {
+		rook.LastPosition = position
+	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
