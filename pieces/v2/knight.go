@@ -82,7 +82,7 @@ func (k *Knight) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, 
 
 func (k *Knight) calculateOptions(position int, newPosition int, opponentBoard map[int]any, forbiddenSquares map[int]struct{}) {
 	opponent, ok := opponentBoard[newPosition]
-	if !k.PinnedToKing {
+	if ok && !k.PinnedToKing {
 		k.addAttackedBy(opponent, position)
 	}
 	if ok && CheckPieceKindFromAny(opponent) == PieceKindKing {
@@ -96,7 +96,7 @@ func (k *Knight) calculateOptions(position int, newPosition int, opponentBoard m
 
 func (k *Knight) deleteOptions(board map[int]any) {
 	var toRemove []int
-	for option, _ := range k.Options {
+	for option := range k.Options {
 		if protectedPiece, ok := board[option]; ok {
 			k.Protecting[option] = protectedPiece
 			toRemove = append(toRemove, option)

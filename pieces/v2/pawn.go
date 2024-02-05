@@ -87,7 +87,7 @@ func (p *Pawn) calculateCaptureOption(position int, endPosition int, captureOpti
 	if capturePiece, ok := opponentBoard[captureOption]; ok { // if black Piece up right
 		p.Options[captureOption] = value // add capture move
 		if !p.PinnedToKing {
-			p.addAttackedBy(opponent, position)
+			p.addAttackedBy(capturePiece, position)
 		}
 		if CheckPieceKindFromAny(capturePiece) == PieceKindKing {
 			king := capturePiece.(*King)
@@ -169,7 +169,7 @@ func (p *Pawn) calculatePinnedOptions(position int) {
 
 func (p *Pawn) deleteOptions(board map[int]any) {
 	var toRemove []int
-	for option, _ := range p.Options {
+	for option := range p.Options {
 		if _, ok := board[option]; ok {
 			toRemove = append(toRemove, option)
 		}

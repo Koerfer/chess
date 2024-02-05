@@ -10,15 +10,15 @@ type Queen struct {
 	AttackedBy       map[int]any
 }
 
-func CalculateQueenMoves(queen *Queen, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
+func (q *Queen) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
 	if fixLastPosition {
-		queen.LastPosition = position
+		q.LastPosition = position
 	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
-	if queen.White == false {
+	if q.White == false {
 		myBoard = blackBoard
 		opponentBoard = whiteBoard
 	}
@@ -26,39 +26,39 @@ func CalculateQueenMoves(queen *Queen, whiteBoard map[int]any, blackBoard map[in
 	rowPos := position % 8
 	colPos := position / 8
 
-	forbidden := calculateQueenDiagonalOptions(queen, position, rowPos, -1, 9, 1, colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden := q.calculateDiagonalOptions(position, rowPos, -1, 9, 1, colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateQueenDiagonalOptions(queen, position, rowPos, -1, 7, -1, colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = q.calculateDiagonalOptions(position, rowPos, -1, 7, -1, colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateQueenDiagonalOptions(queen, position, rowPos, 1, 7, 1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = q.calculateDiagonalOptions(position, rowPos, 1, 7, 1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateQueenDiagonalOptions(queen, position, rowPos, 1, 9, -1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = q.calculateDiagonalOptions(position, rowPos, 1, 9, -1, 7-colPos, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
 	rowPos = position / 8
 	colPos = position % 8
 
-	forbidden = calculateQueenHorizontalOptions(queen, position, rowPos, -1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = q.calculateHorizontalOptions(position, rowPos, -1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateQueenHorizontalOptions(queen, position, rowPos, 1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = q.calculateHorizontalOptions(position, rowPos, 1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateQueenVerticalOptions(queen, position, colPos, 1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = q.calculateVerticalOptions(position, colPos, 1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateQueenVerticalOptions(queen, position, colPos, -1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = q.calculateVerticalOptions(position, colPos, -1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	queen.calculatePinnedOptions(position)
+	q.calculatePinnedOptions(position)
 
 	return forbiddenSquares
 }
 
-func calculateQueenDiagonalOptions(queen *Queen, position int, rowPos int, down int, sideways int, beyondBoardMultiplier int, until int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (q *Queen) calculateDiagonalOptions(position int, rowPos int, down int, sideways int, beyondBoardMultiplier int, until int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
 	for up := 1; up <= until; up++ {
 		newPosition := position + down*up*sideways
 		if newPosition < 0 || newPosition > 63 {
@@ -69,16 +69,19 @@ func calculateQueenDiagonalOptions(queen *Queen, position int, rowPos int, down 
 		}
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
-			queen.Protecting[newPosition] = protectedPiece
+			q.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
-			queen.Options[newPosition] = value
+			q.Options[newPosition] = value
+			if !q.PinnedToKing {
+				q.addAttackedBy(opponent, position)
+			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
 				p.Checked = true
-				p.CheckingPieces[position] = queen
+				p.CheckingPieces[position] = q
 				for upKing := up; upKing <= 8; upKing++ {
 					newPosition := position + down*upKing*sideways
 					if newPosition < 0 || newPosition > 63 {
@@ -137,13 +140,13 @@ func calculateQueenDiagonalOptions(queen *Queen, position int, rowPos int, down 
 		}
 
 		forbiddenSquares[newPosition] = value
-		queen.Options[newPosition] = value
+		q.Options[newPosition] = value
 	}
 
 	return forbiddenSquares
 }
 
-func calculateQueenHorizontalOptions(queen *Queen, position int, rowPos int, right int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (q *Queen) calculateHorizontalOptions(position int, rowPos int, right int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
 	for left := 1; left <= 8; left++ {
 		newPosition := position + right*left
 		if newPosition < 0 || newPosition > 63 {
@@ -154,16 +157,19 @@ func calculateQueenHorizontalOptions(queen *Queen, position int, rowPos int, rig
 		}
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
-			queen.Protecting[newPosition] = protectedPiece
+			q.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
-			queen.Options[newPosition] = value
+			q.Options[newPosition] = value
+			if !q.PinnedToKing {
+				q.addAttackedBy(opponent, position)
+			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
 				p.Checked = true
-				p.CheckingPieces[position] = queen
+				p.CheckingPieces[position] = q
 				for leftKing := left; leftKing <= 8; leftKing++ {
 					newPosition := position + right*leftKing
 					if newPosition < 0 || newPosition > 63 {
@@ -221,13 +227,13 @@ func calculateQueenHorizontalOptions(queen *Queen, position int, rowPos int, rig
 		}
 
 		forbiddenSquares[newPosition] = value
-		queen.Options[newPosition] = value
+		q.Options[newPosition] = value
 	}
 
 	return forbiddenSquares
 }
 
-func calculateQueenVerticalOptions(queen *Queen, position int, colPos int, down int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (q *Queen) calculateVerticalOptions(position int, colPos int, down int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
 	for up := 1; up <= 8; up++ {
 		newPosition := position + down*up*8
 		if newPosition < 0 || newPosition > 63 {
@@ -238,16 +244,19 @@ func calculateQueenVerticalOptions(queen *Queen, position int, colPos int, down 
 		}
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
-			queen.Protecting[newPosition] = protectedPiece
+			q.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
-			queen.Options[newPosition] = value
+			q.Options[newPosition] = value
+			if !q.PinnedToKing {
+				q.addAttackedBy(opponent, position)
+			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
 				p.Checked = true
-				p.CheckingPieces[position] = queen
+				p.CheckingPieces[position] = q
 				for upKing := up; upKing <= 8; upKing++ {
 					newPosition := position + down*upKing*8
 					if newPosition < 0 || newPosition > 63 {
@@ -305,7 +314,7 @@ func calculateQueenVerticalOptions(queen *Queen, position int, colPos int, down 
 		}
 
 		forbiddenSquares[newPosition] = value
-		queen.Options[newPosition] = value
+		q.Options[newPosition] = value
 	}
 
 	return forbiddenSquares
@@ -365,5 +374,29 @@ func (q *Queen) calculatePinnedOptions(position int) {
 			}
 			delete(q.Options, option)
 		}
+	}
+}
+
+func (q *Queen) addAttackedBy(attackedPiece any, position int) {
+	switch CheckPieceKindFromAny(attackedPiece) {
+	case PieceKindPawn:
+		pawn := attackedPiece.(*Pawn)
+		pawn.AttackedBy[position] = q
+	case PieceKindKnight:
+		knight := attackedPiece.(*Knight)
+		knight.AttackedBy[position] = q
+	case PieceKindBishop:
+		bishop := attackedPiece.(*Bishop)
+		bishop.AttackedBy[position] = q
+	case PieceKindRook:
+		rook := attackedPiece.(*Rook)
+		rook.AttackedBy[position] = q
+	case PieceKindQueen:
+		queen := attackedPiece.(*Queen)
+		queen.AttackedBy[position] = q
+	case PieceKindKing:
+		// do nothing
+	case PieceKindInvalid:
+		log.Fatal("invalid piece kind when calculating attacked by queen")
 	}
 }

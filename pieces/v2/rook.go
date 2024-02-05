@@ -11,15 +11,15 @@ type Rook struct {
 	AttackedBy       map[int]any
 }
 
-func CalculateRookMoves(rook *Rook, whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
+func (r *Rook) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
 	forbiddenSquares := make(map[int]struct{})
 	if fixLastPosition {
-		rook.LastPosition = position
+		r.LastPosition = position
 	}
 
 	myBoard := whiteBoard
 	opponentBoard := blackBoard
-	if rook.White == false {
+	if r.White == false {
 		myBoard = blackBoard
 		opponentBoard = whiteBoard
 	}
@@ -27,24 +27,24 @@ func CalculateRookMoves(rook *Rook, whiteBoard map[int]any, blackBoard map[int]a
 	rowPos := position / 8
 	colPos := position % 8
 
-	forbidden := calculateRookHorizontalOptions(rook, position, rowPos, -1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden := r.calculateHorizontalOptions(position, rowPos, -1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateRookHorizontalOptions(rook, position, rowPos, 1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = r.calculateHorizontalOptions(position, rowPos, 1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateRookVerticalOptions(rook, position, colPos, 1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = r.calculateVerticalOptions(position, colPos, 1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	forbidden = calculateRookVerticalOptions(rook, position, colPos, -1, forbiddenSquares, myBoard, opponentBoard)
+	forbidden = r.calculateVerticalOptions(position, colPos, -1, forbiddenSquares, myBoard, opponentBoard)
 	forbiddenSquares = mergeMaps(forbiddenSquares, forbidden)
 
-	rook.calculatePinnedOptions(position)
+	r.calculatePinnedOptions(position)
 
 	return forbiddenSquares
 }
 
-func calculateRookHorizontalOptions(rook *Rook, position int, rowPos int, right int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (r *Rook) calculateHorizontalOptions(position int, rowPos int, right int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
 	for left := 1; left <= 8; left++ {
 		newPosition := position + right*left
 		if newPosition < 0 || newPosition > 63 {
@@ -55,16 +55,19 @@ func calculateRookHorizontalOptions(rook *Rook, position int, rowPos int, right 
 		}
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
-			rook.Protecting[newPosition] = protectedPiece
+			r.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
-			rook.Options[newPosition] = value
+			r.Options[newPosition] = value
+			if !r.PinnedToKing {
+				r.addAttackedBy(opponent, position)
+			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
 				p.Checked = true
-				p.CheckingPieces[position] = rook
+				p.CheckingPieces[position] = r
 				for leftKing := left; leftKing <= 8; leftKing++ {
 					newPosition := position + right*leftKing
 					if newPosition < 0 || newPosition > 63 {
@@ -122,13 +125,13 @@ func calculateRookHorizontalOptions(rook *Rook, position int, rowPos int, right 
 		}
 
 		forbiddenSquares[newPosition] = value
-		rook.Options[newPosition] = value
+		r.Options[newPosition] = value
 	}
 
 	return forbiddenSquares
 }
 
-func calculateRookVerticalOptions(rook *Rook, position int, colPos int, down int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (r *Rook) calculateVerticalOptions(position int, colPos int, down int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
 	for up := 1; up <= 8; up++ {
 		newPosition := position + down*up*8
 		if newPosition < 0 || newPosition > 63 {
@@ -139,16 +142,19 @@ func calculateRookVerticalOptions(rook *Rook, position int, colPos int, down int
 		}
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
-			rook.Protecting[newPosition] = protectedPiece
+			r.Protecting[newPosition] = protectedPiece
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
-			rook.Options[newPosition] = value
+			r.Options[newPosition] = value
+			if !r.PinnedToKing {
+				r.addAttackedBy(opponent, position)
+			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
 				p.Checked = true
-				p.CheckingPieces[position] = rook
+				p.CheckingPieces[position] = r
 				for upKing := up; upKing <= 8; upKing++ {
 					newPosition := position + down*upKing*8
 					if newPosition < 0 || newPosition > 63 {
@@ -206,7 +212,7 @@ func calculateRookVerticalOptions(rook *Rook, position int, colPos int, down int
 		}
 
 		forbiddenSquares[newPosition] = value
-		rook.Options[newPosition] = value
+		r.Options[newPosition] = value
 	}
 
 	return forbiddenSquares
@@ -266,5 +272,29 @@ func (r *Rook) calculatePinnedOptions(position int) {
 			}
 			delete(r.Options, option)
 		}
+	}
+}
+
+func (r *Rook) addAttackedBy(attackedPiece any, position int) {
+	switch CheckPieceKindFromAny(attackedPiece) {
+	case PieceKindPawn:
+		pawn := attackedPiece.(*Pawn)
+		pawn.AttackedBy[position] = r
+	case PieceKindKnight:
+		knight := attackedPiece.(*Knight)
+		knight.AttackedBy[position] = r
+	case PieceKindBishop:
+		bishop := attackedPiece.(*Bishop)
+		bishop.AttackedBy[position] = r
+	case PieceKindRook:
+		rook := attackedPiece.(*Rook)
+		rook.AttackedBy[position] = r
+	case PieceKindQueen:
+		queen := attackedPiece.(*Queen)
+		queen.AttackedBy[position] = r
+	case PieceKindKing:
+		// do nothing
+	case PieceKindInvalid:
+		log.Fatal("invalid piece kind when calculating attacked by rook")
 	}
 }

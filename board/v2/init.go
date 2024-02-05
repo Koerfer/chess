@@ -65,6 +65,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Protecting:   make(map[int]any),
 				},
 				EnPassantOptions: make(map[int]int),
+				AttackedBy:       make(map[int]any),
 			}
 		case v2.PieceKindKnight:
 			a.whiteBoard[pos] = &v2.Knight{
@@ -74,6 +75,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindBishop:
 			a.whiteBoard[pos] = &v2.Bishop{
@@ -83,6 +85,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindRook:
 			a.whiteBoard[pos] = &v2.Rook{
@@ -92,6 +95,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindQueen:
 			a.whiteBoard[pos] = &v2.Queen{
@@ -101,6 +105,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindKing:
 			a.whiteBoard[pos] = &v2.King{
@@ -126,6 +131,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Protecting:   make(map[int]any),
 				},
 				EnPassantOptions: make(map[int]int),
+				AttackedBy:       make(map[int]any),
 			}
 		case v2.PieceKindKnight:
 			a.blackBoard[pos] = &v2.Knight{
@@ -135,6 +141,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindBishop:
 			a.blackBoard[pos] = &v2.Bishop{
@@ -144,6 +151,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindRook:
 			a.blackBoard[pos] = &v2.Rook{
@@ -153,6 +161,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindQueen:
 			a.blackBoard[pos] = &v2.Queen{
@@ -162,6 +171,7 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 					Options:      make(map[int]struct{}),
 					Protecting:   make(map[int]any),
 				},
+				AttackedBy: make(map[int]any),
 			}
 		case v2.PieceKindKing:
 			a.blackBoard[pos] = &v2.King{
