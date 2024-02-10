@@ -1,18 +1,71 @@
 package v2
 
-import "log"
-
 type Pawn struct {
-	*Piece
+	Value          int
+	EvaluatedValue int
+	White          bool
+	LastPosition   int
+	Options        map[int]struct{}
+	Protecting     map[int]PieceInterface
+	AttackedBy     map[int]PieceInterface
+	ProtectedBy    map[int]PieceInterface
+
 	EnPassantOptions map[int]int
 	PinnedToKing     bool
 	PinnedByPosition int
-	PinnedByPiece    any
-	AttackedBy       map[int]any
+	PinnedByPiece    PieceInterface
 }
 
-func (p *Pawn) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
-	forbiddenSquares := make(map[int]struct{})
+func (p *Pawn) GetValue() int {
+	return p.Value
+}
+func (p *Pawn) GetEvaluatedValue() int {
+	return p.EvaluatedValue
+}
+func (p *Pawn) GetWhite() bool {
+	return p.White
+}
+func (p *Pawn) GetLastPosition() int {
+	return p.LastPosition
+}
+func (p *Pawn) GetOptions() map[int]struct{} {
+	return p.Options
+}
+func (p *Pawn) GetProtecting() map[int]PieceInterface {
+	return p.Protecting
+}
+func (p *Pawn) GetAttackedBy() map[int]PieceInterface {
+	return p.AttackedBy
+}
+func (p *Pawn) GetProtectedBy() map[int]PieceInterface {
+	return p.ProtectedBy
+}
+func (p *Pawn) SetValue(value int) {
+	p.Value = value
+}
+func (p *Pawn) SetEvaluatedValue(evaluatedValue int) {
+	p.EvaluatedValue = evaluatedValue
+}
+func (p *Pawn) SetWhite(white bool) {
+	p.White = white
+}
+func (p *Pawn) SetLastPosition(lastPosition int) {
+	p.LastPosition = lastPosition
+}
+func (p *Pawn) SetOptions(options map[int]struct{}) {
+	p.Options = options
+}
+func (p *Pawn) SetProtecting(protecting map[int]PieceInterface) {
+	p.Protecting = protecting
+}
+func (p *Pawn) SetAttackedBy(attackedBy map[int]PieceInterface) {
+	p.AttackedBy = attackedBy
+}
+func (p *Pawn) SetProtectedBy(protectedBy map[int]PieceInterface) {
+	p.ProtectedBy = protectedBy
+}
+
+func (p *Pawn) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[int]PieceInterface, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
 	p.EnPassantOptions = make(map[int]int)
 	if fixLastPosition {
 		p.LastPosition = position
@@ -78,16 +131,17 @@ func (p *Pawn) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	return forbiddenSquares
 }
 
-func (p *Pawn) calculateCaptureOption(position int, endPosition int, captureOption int, direction int, offsetMultiplier int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) {
+func (p *Pawn) calculateCaptureOption(position int, endPosition int, captureOption int, direction int, offsetMultiplier int, forbiddenSquares map[int]struct{}, myBoard map[int]PieceInterface, opponentBoard map[int]PieceInterface) {
 	forbiddenSquares[captureOption] = value
 	if protectedPiece, ok := myBoard[captureOption]; ok {
 		forbiddenSquares[captureOption] = value
 		p.Protecting[captureOption] = protectedPiece
+		addProtectedBy(p, protectedPiece, position)
 	}
 	if capturePiece, ok := opponentBoard[captureOption]; ok { // if black Piece up right
 		p.Options[captureOption] = value // add capture move
 		if !p.PinnedToKing {
-			p.addAttackedBy(capturePiece, position)
+			addAttackedBy(p, capturePiece, position)
 		}
 		if CheckPieceKindFromAny(capturePiece) == PieceKindKing {
 			king := capturePiece.(*King)
@@ -112,7 +166,7 @@ func (p *Pawn) calculateCaptureOption(position int, endPosition int, captureOpti
 
 func (p *Pawn) calculatePinnedOptions(position int) {
 	if p.PinnedToKing {
-		p.Protecting = make(map[int]any)
+		p.Protecting = make(map[int]PieceInterface)
 		for option := range p.Options {
 			if option == p.PinnedByPosition {
 				continue
@@ -167,7 +221,7 @@ func (p *Pawn) calculatePinnedOptions(position int) {
 	}
 }
 
-func (p *Pawn) deleteOptions(board map[int]any) {
+func (p *Pawn) deleteOptions(board map[int]PieceInterface) {
 	var toRemove []int
 	for option := range p.Options {
 		if _, ok := board[option]; ok {
@@ -179,26 +233,23 @@ func (p *Pawn) deleteOptions(board map[int]any) {
 	}
 }
 
-func (p *Pawn) addAttackedBy(attackedPiece any, position int) {
-	switch CheckPieceKindFromAny(attackedPiece) {
-	case PieceKindPawn:
-		pawn := attackedPiece.(*Pawn)
-		pawn.AttackedBy[position] = p
-	case PieceKindKnight:
-		knight := attackedPiece.(*Knight)
-		knight.AttackedBy[position] = p
-	case PieceKindBishop:
-		bishop := attackedPiece.(*Bishop)
-		bishop.AttackedBy[position] = p
-	case PieceKindRook:
-		rook := attackedPiece.(*Rook)
-		rook.AttackedBy[position] = p
-	case PieceKindQueen:
-		queen := attackedPiece.(*Queen)
-		queen.AttackedBy[position] = p
-	case PieceKindKing:
-		// do nothing
-	case PieceKindInvalid:
-		log.Fatal("invalid piece kind when calculating attacked by bishop")
+func (p *Pawn) Copy(deep bool) PieceInterface {
+	if p == nil {
+		return nil
 	}
+	copyCat := &Pawn{
+		Value:            p.Value,
+		EvaluatedValue:   p.EvaluatedValue,
+		White:            p.White,
+		LastPosition:     p.LastPosition,
+		Options:          p.Options,
+		EnPassantOptions: p.EnPassantOptions,
+		PinnedToKing:     p.PinnedToKing,
+		PinnedByPosition: p.PinnedByPosition,
+	}
+	if deep {
+		copyCat.PinnedByPiece = p.PinnedByPiece.Copy(false)
+		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(p.Protecting, p.ProtectedBy, p.AttackedBy)
+	}
+	return copyCat
 }

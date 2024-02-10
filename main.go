@@ -5,7 +5,6 @@ import (
 	v2 "chess/board/v2"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "image/png"
-	"log"
 )
 
 func main() {
@@ -17,11 +16,11 @@ func main() {
 	switch version {
 	case 1:
 		if err := ebiten.RunGame(&v1.App{}); err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 	case 2:
 		if err := ebiten.RunGame(&v2.App{}); err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 	}
 }

@@ -1,18 +1,78 @@
 package v2
 
-import "log"
-
 type King struct {
-	*Piece
+	Value          int
+	EvaluatedValue int
+	White          bool
+	LastPosition   int
+	Options        map[int]struct{}
+	Protecting     map[int]PieceInterface
+
 	HasBeenMoved   bool
-	CheckingPieces map[int]any
+	CheckingPieces map[int]PieceInterface
 	Checked        bool
 }
 
-func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
+func (k *King) GetValue() int {
+	return k.Value
+}
+func (k *King) GetEvaluatedValue() int {
+	return k.EvaluatedValue
+}
+func (k *King) GetWhite() bool {
+	return k.White
+}
+func (k *King) GetLastPosition() int {
+	return k.LastPosition
+}
+func (k *King) GetOptions() map[int]struct{} {
+	return k.Options
+}
+func (k *King) GetProtecting() map[int]PieceInterface {
+	return k.Protecting
+}
+func (k *King) GetAttackedBy() map[int]PieceInterface {
+	panic("wrong use of GetAttackedBy for king")
+	return nil
+}
+func (k *King) GetProtectedBy() map[int]PieceInterface {
+	panic("wrong use of GetProtectedBy for king")
+	return nil
+}
+func (k *King) SetValue(value int) {
+	k.Value = value
+}
+func (k *King) SetEvaluatedValue(evaluatedValue int) {
+	k.EvaluatedValue = evaluatedValue
+}
+func (k *King) SetWhite(white bool) {
+	k.White = white
+}
+func (k *King) SetLastPosition(lastPosition int) {
+	k.LastPosition = lastPosition
+}
+func (k *King) SetOptions(options map[int]struct{}) {
+	k.Options = options
+}
+func (k *King) SetProtecting(protecting map[int]PieceInterface) {
+	k.Protecting = protecting
+}
+func (k *King) SetAttackedBy(attackedBy map[int]PieceInterface) {
+	panic("wrong use of SetAttackedBy for king")
+	return
+}
+func (k *King) SetProtectedBy(protectedBy map[int]PieceInterface) {
+	panic("wrong use of SetProtectedBy for king")
+	return
+}
+
+func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[int]PieceInterface, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
 	newForbiddenSquares := make(map[int]struct{})
 	if fixLastPosition {
 		k.LastPosition = position
+	} else {
+		k.CheckingPieces = make(map[int]PieceInterface)
+		k.Checked = false
 	}
 
 	myBoard := whiteBoard
@@ -38,13 +98,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if rowPos-newPosition%8 < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	newPosition = position - 7
@@ -55,13 +116,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if newPosition%8-rowPos < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	newPosition = position + 7
@@ -72,13 +134,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if rowPos-newPosition%8 < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	newPosition = position + 9
@@ -89,13 +152,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if newPosition%8-rowPos < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	newPosition = position - 1
@@ -106,13 +170,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if rowPos-newPosition%8 < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	newPosition = position + 1
@@ -123,13 +188,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if newPosition%8-rowPos < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	newPosition = position + 8
@@ -140,13 +206,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if newPosition/8-colPos < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	newPosition = position - 8
@@ -157,13 +224,14 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	} else if colPos-newPosition/8 < 0 {
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
-		newForbiddenSquares[newPosition] = value
 		k.Protecting[newPosition] = protectedPiece
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
-		k.addAttackedBy(attackedPiece, position)
+		addAttackedBy(k, attackedPiece, position)
+		newForbiddenSquares[newPosition] = value
 	} else {
 		k.Options[newPosition] = value
+		newForbiddenSquares[newPosition] = value
 	}
 
 	switch k.White {
@@ -236,26 +304,21 @@ func (k *King) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	return newForbiddenSquares
 }
 
-func (k *King) addAttackedBy(attackedPiece any, position int) {
-	switch CheckPieceKindFromAny(attackedPiece) {
-	case PieceKindPawn:
-		pawn := attackedPiece.(*Pawn)
-		pawn.AttackedBy[position] = k
-	case PieceKindKnight:
-		knight := attackedPiece.(*Knight)
-		knight.AttackedBy[position] = k
-	case PieceKindBishop:
-		bishop := attackedPiece.(*Bishop)
-		bishop.AttackedBy[position] = k
-	case PieceKindRook:
-		rook := attackedPiece.(*Rook)
-		rook.AttackedBy[position] = k
-	case PieceKindQueen:
-		queen := attackedPiece.(*Queen)
-		queen.AttackedBy[position] = k
-	case PieceKindKing:
-		// do nothing
-	case PieceKindInvalid:
-		log.Fatal("invalid piece kind when calculating attacked by king")
+func (k *King) Copy(deep bool) PieceInterface {
+	if k == nil {
+		return nil
 	}
+	copyCat := &King{
+		Value:          k.Value,
+		EvaluatedValue: k.EvaluatedValue,
+		White:          k.White,
+		LastPosition:   k.LastPosition,
+		Options:        k.Options,
+		HasBeenMoved:   k.HasBeenMoved,
+		Checked:        k.Checked,
+	}
+	if deep {
+		copyCat.Protecting, copyCat.CheckingPieces, _ = copyProtectingAndAttacking(k.Protecting, k.CheckingPieces, nil)
+	}
+	return copyCat
 }

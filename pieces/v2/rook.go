@@ -1,18 +1,72 @@
 package v2
 
-import "log"
-
 type Rook struct {
-	*Piece
+	Value          int
+	EvaluatedValue int
+	White          bool
+	LastPosition   int
+	Options        map[int]struct{}
+	Protecting     map[int]PieceInterface
+	AttackedBy     map[int]PieceInterface
+	ProtectedBy    map[int]PieceInterface
+
 	PinnedToKing     bool
 	PinnedByPosition int
-	PinnedByPiece    any
-	HasBeenMoved     bool
-	AttackedBy       map[int]any
+	PinnedByPiece    PieceInterface
+
+	HasBeenMoved bool
 }
 
-func (r *Rook) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
-	forbiddenSquares := make(map[int]struct{})
+func (r *Rook) GetValue() int {
+	return r.Value
+}
+func (r *Rook) GetEvaluatedValue() int {
+	return r.EvaluatedValue
+}
+func (r *Rook) GetWhite() bool {
+	return r.White
+}
+func (r *Rook) GetLastPosition() int {
+	return r.LastPosition
+}
+func (r *Rook) GetOptions() map[int]struct{} {
+	return r.Options
+}
+func (r *Rook) GetProtecting() map[int]PieceInterface {
+	return r.Protecting
+}
+func (r *Rook) GetAttackedBy() map[int]PieceInterface {
+	return r.AttackedBy
+}
+func (r *Rook) GetProtectedBy() map[int]PieceInterface {
+	return r.ProtectedBy
+}
+func (r *Rook) SetValue(value int) {
+	r.Value = value
+}
+func (r *Rook) SetEvaluatedValue(evaluatedValue int) {
+	r.EvaluatedValue = evaluatedValue
+}
+func (r *Rook) SetWhite(white bool) {
+	r.White = white
+}
+func (r *Rook) SetLastPosition(lastPosition int) {
+	r.LastPosition = lastPosition
+}
+func (r *Rook) SetOptions(options map[int]struct{}) {
+	r.Options = options
+}
+func (r *Rook) SetProtecting(protecting map[int]PieceInterface) {
+	r.Protecting = protecting
+}
+func (r *Rook) SetAttackedBy(attackedBy map[int]PieceInterface) {
+	r.AttackedBy = attackedBy
+}
+func (r *Rook) SetProtectedBy(protectedBy map[int]PieceInterface) {
+	r.ProtectedBy = protectedBy
+}
+
+func (r *Rook) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[int]PieceInterface, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
 	if fixLastPosition {
 		r.LastPosition = position
 	}
@@ -44,7 +98,7 @@ func (r *Rook) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, po
 	return forbiddenSquares
 }
 
-func (r *Rook) calculateHorizontalOptions(position int, rowPos int, right int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (r *Rook) calculateHorizontalOptions(position int, rowPos int, right int, forbiddenSquares map[int]struct{}, myBoard map[int]PieceInterface, opponentBoard map[int]PieceInterface) map[int]struct{} {
 	for left := 1; left <= 8; left++ {
 		newPosition := position + right*left
 		if newPosition < 0 || newPosition > 63 {
@@ -56,13 +110,14 @@ func (r *Rook) calculateHorizontalOptions(position int, rowPos int, right int, f
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
 			r.Protecting[newPosition] = protectedPiece
+			addProtectedBy(r, protectedPiece, position)
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
 			r.Options[newPosition] = value
 			if !r.PinnedToKing {
-				r.addAttackedBy(opponent, position)
+				addAttackedBy(r, opponent, position)
 			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
@@ -114,7 +169,7 @@ func (r *Rook) calculateHorizontalOptions(position int, rowPos int, right int, f
 							case PieceKindKing:
 								// do nothing
 							case PieceKindInvalid:
-								log.Fatal("invalid piece kind during queen pinning")
+								panic("invalid piece kind during queen pinning")
 							}
 						}
 						break
@@ -131,7 +186,7 @@ func (r *Rook) calculateHorizontalOptions(position int, rowPos int, right int, f
 	return forbiddenSquares
 }
 
-func (r *Rook) calculateVerticalOptions(position int, colPos int, down int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (r *Rook) calculateVerticalOptions(position int, colPos int, down int, forbiddenSquares map[int]struct{}, myBoard map[int]PieceInterface, opponentBoard map[int]PieceInterface) map[int]struct{} {
 	for up := 1; up <= 8; up++ {
 		newPosition := position + down*up*8
 		if newPosition < 0 || newPosition > 63 {
@@ -143,13 +198,14 @@ func (r *Rook) calculateVerticalOptions(position int, colPos int, down int, forb
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
 			r.Protecting[newPosition] = protectedPiece
+			addProtectedBy(r, protectedPiece, position)
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
 			r.Options[newPosition] = value
 			if !r.PinnedToKing {
-				r.addAttackedBy(opponent, position)
+				addAttackedBy(r, opponent, position)
 			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
@@ -201,7 +257,7 @@ func (r *Rook) calculateVerticalOptions(position int, colPos int, down int, forb
 							case PieceKindKing:
 								// do nothing
 							case PieceKindInvalid:
-								log.Fatal("invalid piece kind during queen pinning")
+								panic("invalid piece kind during queen pinning")
 							}
 						}
 						break
@@ -220,7 +276,7 @@ func (r *Rook) calculateVerticalOptions(position int, colPos int, down int, forb
 
 func (r *Rook) calculatePinnedOptions(position int) {
 	if r.PinnedToKing {
-		r.Protecting = make(map[int]any)
+		r.Protecting = make(map[int]PieceInterface)
 		for option := range r.Options {
 			if option == r.PinnedByPosition {
 				continue
@@ -275,26 +331,23 @@ func (r *Rook) calculatePinnedOptions(position int) {
 	}
 }
 
-func (r *Rook) addAttackedBy(attackedPiece any, position int) {
-	switch CheckPieceKindFromAny(attackedPiece) {
-	case PieceKindPawn:
-		pawn := attackedPiece.(*Pawn)
-		pawn.AttackedBy[position] = r
-	case PieceKindKnight:
-		knight := attackedPiece.(*Knight)
-		knight.AttackedBy[position] = r
-	case PieceKindBishop:
-		bishop := attackedPiece.(*Bishop)
-		bishop.AttackedBy[position] = r
-	case PieceKindRook:
-		rook := attackedPiece.(*Rook)
-		rook.AttackedBy[position] = r
-	case PieceKindQueen:
-		queen := attackedPiece.(*Queen)
-		queen.AttackedBy[position] = r
-	case PieceKindKing:
-		// do nothing
-	case PieceKindInvalid:
-		log.Fatal("invalid piece kind when calculating attacked by rook")
+func (r *Rook) Copy(deep bool) PieceInterface {
+	if r == nil {
+		return nil
 	}
+	copyCat := &Rook{
+		Value:            r.Value,
+		EvaluatedValue:   r.EvaluatedValue,
+		White:            r.White,
+		LastPosition:     r.LastPosition,
+		Options:          r.Options,
+		PinnedToKing:     r.PinnedToKing,
+		PinnedByPosition: r.PinnedByPosition,
+		HasBeenMoved:     r.HasBeenMoved,
+	}
+	if deep {
+		copyCat.PinnedByPiece = r.PinnedByPiece.Copy(false)
+		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(r.Protecting, r.ProtectedBy, r.AttackedBy)
+	}
+	return copyCat
 }

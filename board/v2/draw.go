@@ -3,11 +3,10 @@ package v2
 import (
 	v2 "chess/pieces/v2"
 	"github.com/hajimehoshi/ebiten/v2"
-	"log"
 	"math"
 )
 
-func (a *App) drawOptions(screen *ebiten.Image, piece any) {
+func (a *App) drawOptions(screen *ebiten.Image, piece v2.PieceInterface) {
 	a.op.GeoM.Reset()
 
 	options := make(map[int]struct{})
@@ -34,7 +33,7 @@ func (a *App) drawOptions(screen *ebiten.Image, piece any) {
 		p := piece.(*v2.King)
 		options = p.Options
 	case v2.PieceKindInvalid:
-		log.Fatal("invalid piece kind when drawing options")
+		panic("invalid piece kind when drawing options")
 	}
 
 	for option := range options {
@@ -130,7 +129,7 @@ func (a *App) drawPieces(screen *ebiten.Image) {
 				screen.DrawImage(lastPositionI, &a.op)
 			}
 		case v2.PieceKindInvalid:
-			log.Fatal("invalid piece kind when drawing pieces")
+			panic("invalid piece kind when drawing pieces")
 		}
 	}
 
@@ -198,7 +197,7 @@ func (a *App) drawPieces(screen *ebiten.Image) {
 				screen.DrawImage(lastPositionI, &a.op)
 			}
 		case v2.PieceKindInvalid:
-			log.Fatal("invalid piece kind when drawing pieces")
+			panic("invalid piece kind when drawing pieces")
 		}
 	}
 }

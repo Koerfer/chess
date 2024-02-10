@@ -1,39 +1,21 @@
 package v2
 
-import (
-	"log"
-)
-
 var value struct{}
 
-func CalculateOptions(piece any, whiteBoard map[int]any, blackBoard map[int]any, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
+func CalculateOptions(piece PieceInterface, whiteBoard map[int]PieceInterface, blackBoard map[int]PieceInterface, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
 	switch CheckPieceKindFromAny(piece) {
-	case PieceKindPawn:
-		pawn := piece.(*Pawn)
-		pawn.Options = make(map[int]struct{})
-		return pawn.CalculateMoves(whiteBoard, blackBoard, position, fixLastPosition)
-	case PieceKindKnight:
-		knight := piece.(*Knight)
-		knight.Options = make(map[int]struct{})
-		return knight.CalculateMoves(whiteBoard, blackBoard, position, fixLastPosition)
-	case PieceKindBishop:
-		bishop := piece.(*Bishop)
-		bishop.Options = make(map[int]struct{})
-		return bishop.CalculateMoves(whiteBoard, blackBoard, position, fixLastPosition)
-	case PieceKindRook:
-		rook := piece.(*Rook)
-		rook.Options = make(map[int]struct{})
-		return rook.CalculateMoves(whiteBoard, blackBoard, position, fixLastPosition)
-	case PieceKindQueen:
-		queen := piece.(*Queen)
-		queen.Options = make(map[int]struct{})
-		return queen.CalculateMoves(whiteBoard, blackBoard, position, fixLastPosition)
+	case PieceKindPawn, PieceKindKnight, PieceKindBishop, PieceKindRook, PieceKindQueen:
+		piece.SetOptions(make(map[int]struct{}))
+		piece.SetProtectedBy(make(map[int]PieceInterface))
+		piece.SetAttackedBy(make(map[int]PieceInterface))
+		piece.SetProtecting(make(map[int]PieceInterface))
+		return piece.CalculateMoves(whiteBoard, blackBoard, position, make(map[int]struct{}), fixLastPosition)
 	case PieceKindKing:
-		king := piece.(*King)
-		king.Options = make(map[int]struct{})
-		return king.CalculateMoves(whiteBoard, blackBoard, position, forbiddenSquares, fixLastPosition)
+		piece.SetOptions(make(map[int]struct{}))
+		piece.SetProtecting(make(map[int]PieceInterface))
+		return piece.CalculateMoves(whiteBoard, blackBoard, position, forbiddenSquares, fixLastPosition)
 	case PieceKindInvalid:
-		log.Fatal("invalid piece kind when calculating options")
+		panic("invalid piece kind when calculating options")
 	}
 
 	return nil

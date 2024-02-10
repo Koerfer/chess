@@ -1,17 +1,70 @@
 package v2
 
-import "log"
-
 type Bishop struct {
-	*Piece
+	Value          int
+	EvaluatedValue int
+	White          bool
+	LastPosition   int
+	Options        map[int]struct{}
+	Protecting     map[int]PieceInterface
+	AttackedBy     map[int]PieceInterface
+	ProtectedBy    map[int]PieceInterface
+
 	PinnedToKing     bool
 	PinnedByPosition int
-	PinnedByPiece    any
-	AttackedBy       map[int]any
+	PinnedByPiece    PieceInterface
 }
 
-func (b *Bishop) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, position int, fixLastPosition bool) map[int]struct{} {
-	forbiddenSquares := make(map[int]struct{})
+func (b *Bishop) GetValue() int {
+	return b.Value
+}
+func (b *Bishop) GetEvaluatedValue() int {
+	return b.EvaluatedValue
+}
+func (b *Bishop) GetWhite() bool {
+	return b.White
+}
+func (b *Bishop) GetLastPosition() int {
+	return b.LastPosition
+}
+func (b *Bishop) GetOptions() map[int]struct{} {
+	return b.Options
+}
+func (b *Bishop) GetProtecting() map[int]PieceInterface {
+	return b.Protecting
+}
+func (b *Bishop) GetAttackedBy() map[int]PieceInterface {
+	return b.AttackedBy
+}
+func (b *Bishop) GetProtectedBy() map[int]PieceInterface {
+	return b.ProtectedBy
+}
+func (b *Bishop) SetValue(value int) {
+	b.Value = value
+}
+func (b *Bishop) SetEvaluatedValue(evaluatedValue int) {
+	b.EvaluatedValue = evaluatedValue
+}
+func (b *Bishop) SetWhite(white bool) {
+	b.White = white
+}
+func (b *Bishop) SetLastPosition(lastPosition int) {
+	b.LastPosition = lastPosition
+}
+func (b *Bishop) SetOptions(options map[int]struct{}) {
+	b.Options = options
+}
+func (b *Bishop) SetProtecting(protecting map[int]PieceInterface) {
+	b.Protecting = protecting
+}
+func (b *Bishop) SetAttackedBy(attackedBy map[int]PieceInterface) {
+	b.AttackedBy = attackedBy
+}
+func (b *Bishop) SetProtectedBy(protectedBy map[int]PieceInterface) {
+	b.ProtectedBy = protectedBy
+}
+
+func (b *Bishop) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[int]PieceInterface, position int, forbiddenSquares map[int]struct{}, fixLastPosition bool) map[int]struct{} {
 	if fixLastPosition {
 		b.LastPosition = position
 	}
@@ -43,7 +96,7 @@ func (b *Bishop) CalculateMoves(whiteBoard map[int]any, blackBoard map[int]any, 
 	return forbiddenSquares
 }
 
-func (b *Bishop) calculateOptions(position int, rowPos int, down int, sideways int, beyondBoardMultiplier int, until int, forbiddenSquares map[int]struct{}, myBoard map[int]any, opponentBoard map[int]any) map[int]struct{} {
+func (b *Bishop) calculateOptions(position int, rowPos int, down int, sideways int, beyondBoardMultiplier int, until int, forbiddenSquares map[int]struct{}, myBoard map[int]PieceInterface, opponentBoard map[int]PieceInterface) map[int]struct{} {
 	for up := 1; up <= until; up++ {
 		newPosition := position + down*up*sideways
 		if newPosition < 0 || newPosition > 63 {
@@ -55,13 +108,14 @@ func (b *Bishop) calculateOptions(position int, rowPos int, down int, sideways i
 		if protectedPiece, ok := myBoard[newPosition]; ok {
 			forbiddenSquares[newPosition] = value
 			b.Protecting[newPosition] = protectedPiece
+			addProtectedBy(b, protectedPiece, position)
 			return forbiddenSquares
 		}
 		opponent, ok := opponentBoard[newPosition]
 		if ok {
 			b.Options[newPosition] = value
 			if !b.PinnedToKing {
-				b.addAttackedBy(opponent, position)
+				addAttackedBy(b, opponent, position)
 			}
 			if CheckPieceKindFromAny(opponent) == PieceKindKing {
 				p := opponent.(*King)
@@ -113,7 +167,7 @@ func (b *Bishop) calculateOptions(position int, rowPos int, down int, sideways i
 							case PieceKindKing:
 								// do nothing
 							case PieceKindInvalid:
-								log.Fatal("invalid piece kind during queen pinning")
+								panic("invalid piece kind during queen pinning")
 							}
 						}
 						return forbiddenSquares
@@ -133,7 +187,7 @@ func (b *Bishop) calculateOptions(position int, rowPos int, down int, sideways i
 
 func (b *Bishop) calculatePinnedOptions(position int) {
 	if b.PinnedToKing {
-		b.Protecting = make(map[int]any)
+		b.Protecting = make(map[int]PieceInterface)
 		for option := range b.Options {
 			if option == b.PinnedByPosition {
 				continue
@@ -188,26 +242,22 @@ func (b *Bishop) calculatePinnedOptions(position int) {
 	}
 }
 
-func (b *Bishop) addAttackedBy(attackedPiece any, position int) {
-	switch CheckPieceKindFromAny(attackedPiece) {
-	case PieceKindPawn:
-		pawn := attackedPiece.(*Pawn)
-		pawn.AttackedBy[position] = b
-	case PieceKindKnight:
-		knight := attackedPiece.(*Knight)
-		knight.AttackedBy[position] = b
-	case PieceKindBishop:
-		bishop := attackedPiece.(*Bishop)
-		bishop.AttackedBy[position] = b
-	case PieceKindRook:
-		rook := attackedPiece.(*Rook)
-		rook.AttackedBy[position] = b
-	case PieceKindQueen:
-		queen := attackedPiece.(*Queen)
-		queen.AttackedBy[position] = b
-	case PieceKindKing:
-		// do nothing
-	case PieceKindInvalid:
-		log.Fatal("invalid piece kind when calculating attacked by bishop")
+func (b *Bishop) Copy(deep bool) PieceInterface {
+	if b == nil {
+		return nil
 	}
+	copyCat := &Bishop{
+		Value:            b.Value,
+		EvaluatedValue:   b.EvaluatedValue,
+		White:            b.White,
+		LastPosition:     b.LastPosition,
+		Options:          b.Options,
+		PinnedToKing:     b.PinnedToKing,
+		PinnedByPosition: b.PinnedByPosition,
+	}
+	if deep {
+		copyCat.PinnedByPiece = b.PinnedByPiece.Copy(false)
+		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(b.Protecting, b.ProtectedBy, b.AttackedBy)
+	}
+	return copyCat
 }

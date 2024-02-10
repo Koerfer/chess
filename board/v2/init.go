@@ -5,13 +5,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"os"
 )
 
 func (a *App) initWhiteBoard() {
 	a.whitesTurn = true
-	a.whiteBoard = make(map[int]any)
+	a.whiteBoard = make(map[int]v2.PieceInterface)
 	a.addPiece(56, v2.PieceKindRook, true)
 	a.addPiece(57, v2.PieceKindKnight, true)
 	a.addPiece(58, v2.PieceKindBishop, true)
@@ -32,7 +31,7 @@ func (a *App) initWhiteBoard() {
 }
 
 func (a *App) initBlackBoard() {
-	a.blackBoard = make(map[int]any)
+	a.blackBoard = make(map[int]v2.PieceInterface)
 	a.addPiece(0, v2.PieceKindRook, false)
 	a.addPiece(1, v2.PieceKindKnight, false)
 	a.addPiece(2, v2.PieceKindBishop, false)
@@ -58,133 +57,144 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 		switch kind {
 		case v2.PieceKindPawn:
 			a.whiteBoard[pos] = &v2.Pawn{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
+				White:            white,
+				LastPosition:     pos,
+				Options:          make(map[int]struct{}),
+				Protecting:       make(map[int]v2.PieceInterface),
+				Value:            1,
+				AttackedBy:       make(map[int]v2.PieceInterface),
+				ProtectedBy:      make(map[int]v2.PieceInterface),
 				EnPassantOptions: make(map[int]int),
-				AttackedBy:       make(map[int]any),
 			}
 		case v2.PieceKindKnight:
 			a.whiteBoard[pos] = &v2.Knight{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        2,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindBishop:
 			a.whiteBoard[pos] = &v2.Bishop{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        3,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindRook:
 			a.whiteBoard[pos] = &v2.Rook{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        5,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindQueen:
 			a.whiteBoard[pos] = &v2.Queen{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        9,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindKing:
 			a.whiteBoard[pos] = &v2.King{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				CheckingPieces: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        100,
+
+				CheckingPieces: make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindInvalid:
-			log.Fatal("invalid piece kind when initialising board")
+			panic("invalid piece kind when initialising board")
 		}
 	case false:
 		switch kind {
 		case v2.PieceKindPawn:
 			a.blackBoard[pos] = &v2.Pawn{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        1,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
+
 				EnPassantOptions: make(map[int]int),
-				AttackedBy:       make(map[int]any),
 			}
 		case v2.PieceKindKnight:
 			a.blackBoard[pos] = &v2.Knight{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        2,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindBishop:
 			a.blackBoard[pos] = &v2.Bishop{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        3,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindRook:
 			a.blackBoard[pos] = &v2.Rook{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        5,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindQueen:
 			a.blackBoard[pos] = &v2.Queen{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				AttackedBy: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        9,
+				AttackedBy:   make(map[int]v2.PieceInterface),
+				ProtectedBy:  make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindKing:
 			a.blackBoard[pos] = &v2.King{
-				Piece: &v2.Piece{
-					White:        white,
-					LastPosition: pos,
-					Options:      make(map[int]struct{}),
-					Protecting:   make(map[int]any),
-				},
-				CheckingPieces: make(map[int]any),
+
+				White:        white,
+				LastPosition: pos,
+				Options:      make(map[int]struct{}),
+				Protecting:   make(map[int]v2.PieceInterface),
+				Value:        100,
+
+				CheckingPieces: make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindInvalid:
-			log.Fatal("invalid piece kind when initialising board")
+			panic("invalid piece kind when initialising board")
 		}
 	}
 
@@ -193,161 +203,161 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 func (a *App) initImages() {
 	chessboard, err := os.Open("board/v2/images/chessboard.jpeg")
 	if err != nil {
-		log.Fatalf("unable to open chessboard image: %v", err)
+		panic("unable to open chessboard image")
 	}
 	jpegBoard, err := jpeg.Decode(chessboard)
 	if err != nil {
-		log.Fatalf("unable to decode chessboard image: %v", err)
+		panic("unable to decode chessboard image")
 	}
 	boardImage := ebiten.NewImageFromImage(jpegBoard)
 
 	option, err := os.Open("board/v2/images/option.png")
 	if err != nil {
-		log.Fatalf("unable to open option image: %v", err)
+		panic("unable to open option image")
 	}
 	optionDecoded, err := png.Decode(option)
 	if err != nil {
-		log.Fatalf("unable to decode option image: %v", err)
+		panic("unable to decode option image")
 	}
 	optionImage := ebiten.NewImageFromImage(optionDecoded)
 
 	lastPosition, err := os.Open("board/v2/images/last_position.png")
 	if err != nil {
-		log.Fatalf("unable to last position option image: %v", err)
+		panic("unable to last position option image")
 	}
 	lastPositionDecoded, err := png.Decode(lastPosition)
 	if err != nil {
-		log.Fatalf("unable to decode last position image: %v", err)
+		panic("unable to decode last position image")
 	}
 	lastPositionImage := ebiten.NewImageFromImage(lastPositionDecoded)
 
 	newPosition, err := os.Open("board/v2/images/new_position_marker.png")
 	if err != nil {
-		log.Fatalf("unable to last position option image: %v", err)
+		panic("unable to last position option image")
 	}
 	newPositionDecoded, err := png.Decode(newPosition)
 	if err != nil {
-		log.Fatalf("unable to decode last position image: %v", err)
+		panic("unable to decode last position image")
 	}
 	newPositionImage := ebiten.NewImageFromImage(newPositionDecoded)
 
 	whitePawn, err := os.Open("board/v2/images/white_pawn.png")
 	if err != nil {
-		log.Fatalf("unable to open White pawn image: %v", err)
+		panic("unable to open White pawn image")
 	}
 	whitePawnDecoded, err := png.Decode(whitePawn)
 	if err != nil {
-		log.Fatalf("unable to decode White pawn image: %v", err)
+		panic("unable to decode White pawn image")
 	}
 	whitePawnImage := ebiten.NewImageFromImage(whitePawnDecoded)
 
 	whiteKing, err := os.Open("board/v2/images/white_king.png")
 	if err != nil {
-		log.Fatalf("unable to open White king image: %v", err)
+		panic("unable to open White king image")
 	}
 	whiteKingDecoded, err := png.Decode(whiteKing)
 	if err != nil {
-		log.Fatalf("unable to decode White king image: %v", err)
+		panic("unable to decode White king image")
 	}
 	whiteKingImage := ebiten.NewImageFromImage(whiteKingDecoded)
 
 	whiteRook, err := os.Open("board/v2/images/white_rook.png")
 	if err != nil {
-		log.Fatalf("unable to open White rook image: %v", err)
+		panic("unable to open White rook image")
 	}
 	whiteRookDecoded, err := png.Decode(whiteRook)
 	if err != nil {
-		log.Fatalf("unable to decode White pawn image: %v", err)
+		panic("unable to decode White pawn image")
 	}
 	whiteRookImage := ebiten.NewImageFromImage(whiteRookDecoded)
 
 	whiteQueen, err := os.Open("board/v2/images/white_queen.png")
 	if err != nil {
-		log.Fatalf("unable to open White queen image: %v", err)
+		panic("unable to open White queen image")
 	}
 	whiteQueenDecoded, err := png.Decode(whiteQueen)
 	if err != nil {
-		log.Fatalf("unable to decode White queen image: %v", err)
+		panic("unable to decode White queen image")
 	}
 	whiteQueenImage := ebiten.NewImageFromImage(whiteQueenDecoded)
 
 	whiteKnight, err := os.Open("board/v2/images/white_knight.png")
 	if err != nil {
-		log.Fatalf("unable to open White knight image: %v", err)
+		panic("unable to open White knight image")
 	}
 	whiteKnightDecoded, err := png.Decode(whiteKnight)
 	if err != nil {
-		log.Fatalf("unable to decode White knight image: %v", err)
+		panic("unable to decode White knight image")
 	}
 	whiteKnightImage := ebiten.NewImageFromImage(whiteKnightDecoded)
 
 	whiteBishop, err := os.Open("board/v2/images/white_bishop.png")
 	if err != nil {
-		log.Fatalf("unable to open White bishop image: %v", err)
+		panic("unable to open White bishop image")
 	}
 	whiteBishopDecoded, err := png.Decode(whiteBishop)
 	if err != nil {
-		log.Fatalf("unable to decode White bishop image: %v", err)
+		panic("unable to decode White bishop image")
 	}
 	whiteBishopImage := ebiten.NewImageFromImage(whiteBishopDecoded)
 
 	blackPawn, err := os.Open("board/v2/images/black_pawn.png")
 	if err != nil {
-		log.Fatalf("unable to open black pawn image: %v", err)
+		panic("unable to open black pawn image")
 	}
 	blackPawnDecoded, err := png.Decode(blackPawn)
 	if err != nil {
-		log.Fatalf("unable to decode black pawn image: %v", err)
+		panic("unable to decode black pawn image")
 	}
 	blackPawnImage := ebiten.NewImageFromImage(blackPawnDecoded)
 
 	blackKing, err := os.Open("board/v2/images/black_king.png")
 	if err != nil {
-		log.Fatalf("unable to open black king image: %v", err)
+		panic("unable to open black king image")
 	}
 	blackKingDecoded, err := png.Decode(blackKing)
 	if err != nil {
-		log.Fatalf("unable to decode black king image: %v", err)
+		panic("unable to decode black king image")
 	}
 	blackKingImage := ebiten.NewImageFromImage(blackKingDecoded)
 
 	blackRook, err := os.Open("board/v2/images/black_rook.png")
 	if err != nil {
-		log.Fatalf("unable to open black rook image: %v", err)
+		panic("unable to open black rook image")
 	}
 	blackRookDecoded, err := png.Decode(blackRook)
 	if err != nil {
-		log.Fatalf("unable to decode black pawn image: %v", err)
+		panic("unable to decode black pawn image")
 	}
 	blackRookImage := ebiten.NewImageFromImage(blackRookDecoded)
 
 	blackQueen, err := os.Open("board/v2/images/black_queen.png")
 	if err != nil {
-		log.Fatalf("unable to open black queen image: %v", err)
+		panic("unable to open black queen image")
 	}
 	blackQueenDecoded, err := png.Decode(blackQueen)
 	if err != nil {
-		log.Fatalf("unable to decode black queen image: %v", err)
+		panic("unable to decode black queen image")
 	}
 	blackQueenImage := ebiten.NewImageFromImage(blackQueenDecoded)
 
 	blackKnight, err := os.Open("board/v2/images/black_knight.png")
 	if err != nil {
-		log.Fatalf("unable to open black knight image: %v", err)
+		panic("unable to open black knight image")
 	}
 	blackKnightDecoded, err := png.Decode(blackKnight)
 	if err != nil {
-		log.Fatalf("unable to decode black knight image: %v", err)
+		panic("unable to decode black knight image")
 	}
 	blackKnightImage := ebiten.NewImageFromImage(blackKnightDecoded)
 
 	blackBishop, err := os.Open("board/v2/images/black_bishop.png")
 	if err != nil {
-		log.Fatalf("unable to open black bishop image: %v", err)
+		panic("unable to open black bishop image")
 	}
 	blackBishopDecoded, err := png.Decode(blackBishop)
 	if err != nil {
-		log.Fatalf("unable to decode black bishop image: %v", err)
+		panic("unable to decode black bishop image")
 	}
 	blackBishopImage := ebiten.NewImageFromImage(blackBishopDecoded)
 

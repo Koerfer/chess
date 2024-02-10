@@ -2,7 +2,7 @@ package v2
 
 import v2 "chess/pieces/v2"
 
-func (a *App) castle(king *v2.King, option int, board map[int]any) bool {
+func (a *App) castle(king *v2.King, option int, board map[int]v2.PieceInterface) bool {
 	switch option {
 	case 2:
 		king.HasBeenMoved = true

@@ -2,10 +2,10 @@ package v2
 
 import (
 	v2 "chess/pieces/v2"
-	"log"
+	"fmt"
 )
 
-func resetPinned(piece any) {
+func resetPinned(piece v2.PieceInterface) {
 	switch v2.CheckPieceKindFromAny(piece) {
 	case v2.PieceKindPawn:
 		p := piece.(*v2.Pawn)
@@ -26,11 +26,11 @@ func resetPinned(piece any) {
 		p := piece.(*v2.King)
 		p.Checked = false
 	case v2.PieceKindInvalid:
-		log.Fatal("invalid piece kind when resetting pinned")
+		panic("invalid piece kind when resetting pinned")
 	}
 }
 
-func (a *App) calculateAllPositions(whiteBoard map[int]any, blackBoard map[int]any) {
+func (a *App) calculateAllPositions(whiteBoard map[int]v2.PieceInterface, blackBoard map[int]v2.PieceInterface) {
 	forbiddenSquares := make(map[int]struct{})
 	var check bool
 
@@ -41,7 +41,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]any, blackBoard map[int]a
 		resetPinned(piece)
 	}
 
-	var checkingPieces map[int]any
+	var checkingPieces map[int]v2.PieceInterface
 	var kingPosition int
 
 	switch a.whitesTurn {
@@ -53,7 +53,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]any, blackBoard map[int]a
 			}
 			if v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
 				p := piece.(*v2.King)
-				p.CheckingPieces = make(map[int]any)
+				p.CheckingPieces = make(map[int]v2.PieceInterface)
 			}
 		}
 
@@ -76,6 +76,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]any, blackBoard map[int]a
 		if check {
 			for _, piece := range whiteBoard {
 				if v2.CheckPieceKindFromAny(piece) != v2.PieceKindKing {
+					fmt.Println(len(checkingPieces))
 					v2.RemoveOptionsDueToCheck(piece, kingPosition, checkingPieces)
 				}
 			}
@@ -88,7 +89,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]any, blackBoard map[int]a
 			}
 			if v2.CheckPieceKindFromAny(piece) == v2.PieceKindKing {
 				p := piece.(*v2.King)
-				p.CheckingPieces = make(map[int]any)
+				p.CheckingPieces = make(map[int]v2.PieceInterface)
 			}
 		}
 
@@ -111,6 +112,7 @@ func (a *App) calculateAllPositions(whiteBoard map[int]any, blackBoard map[int]a
 		if check {
 			for _, piece := range blackBoard {
 				if v2.CheckPieceKindFromAny(piece) != v2.PieceKindKing {
+					fmt.Println(len(checkingPieces))
 					v2.RemoveOptionsDueToCheck(piece, kingPosition, checkingPieces)
 				}
 			}
