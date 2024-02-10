@@ -99,6 +99,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)
@@ -117,6 +118,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)
@@ -135,6 +137,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)
@@ -153,6 +156,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)
@@ -171,6 +175,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)
@@ -189,6 +194,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)
@@ -207,6 +213,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)
@@ -225,6 +232,7 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		// nothing
 	} else if protectedPiece, ok := myBoard[newPosition]; ok {
 		k.Protecting[newPosition] = protectedPiece
+		addProtectedBy(k, protectedPiece, position)
 	} else if attackedPiece, ok := opponentBoard[newPosition]; ok {
 		k.Options[newPosition] = value
 		addAttackedBy(k, attackedPiece, position)

@@ -256,7 +256,9 @@ func (b *Bishop) Copy(deep bool) PieceInterface {
 		PinnedByPosition: b.PinnedByPosition,
 	}
 	if deep {
-		copyCat.PinnedByPiece = b.PinnedByPiece.Copy(false)
+		if b.PinnedByPiece != nil {
+			copyCat.PinnedByPiece = b.PinnedByPiece.Copy(false)
+		}
 		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(b.Protecting, b.ProtectedBy, b.AttackedBy)
 	}
 	return copyCat

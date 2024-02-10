@@ -175,7 +175,9 @@ func (k *Knight) Copy(deep bool) PieceInterface {
 		PinnedByPosition: k.PinnedByPosition,
 	}
 	if deep {
-		copyCat.PinnedByPiece = k.PinnedByPiece.Copy(false)
+		if k.PinnedByPiece != nil {
+			copyCat.PinnedByPiece = k.PinnedByPiece.Copy(false)
+		}
 		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(k.Protecting, k.ProtectedBy, k.AttackedBy)
 	}
 	return copyCat

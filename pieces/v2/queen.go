@@ -447,7 +447,9 @@ func (q *Queen) Copy(deep bool) PieceInterface {
 		PinnedByPosition: q.PinnedByPosition,
 	}
 	if deep {
-		copyCat.PinnedByPiece = q.PinnedByPiece.Copy(false)
+		if q.PinnedByPiece != nil {
+			copyCat.PinnedByPiece = q.PinnedByPiece.Copy(false)
+		}
 		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(q.Protecting, q.ProtectedBy, q.AttackedBy)
 	}
 	return copyCat

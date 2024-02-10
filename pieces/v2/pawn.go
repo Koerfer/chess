@@ -248,7 +248,9 @@ func (p *Pawn) Copy(deep bool) PieceInterface {
 		PinnedByPosition: p.PinnedByPosition,
 	}
 	if deep {
-		copyCat.PinnedByPiece = p.PinnedByPiece.Copy(false)
+		if p.PinnedByPiece != nil {
+			copyCat.PinnedByPiece = p.PinnedByPiece.Copy(false)
+		}
 		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(p.Protecting, p.ProtectedBy, p.AttackedBy)
 	}
 	return copyCat

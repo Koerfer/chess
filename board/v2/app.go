@@ -1,6 +1,7 @@
 package v2
 
 import (
+	engine "chess/engine/v2"
 	v2 "chess/pieces/v2"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -42,6 +43,8 @@ type App struct {
 
 	whitesTurn    bool
 	selectedPiece v2.PieceInterface
+
+	engine engine.Engine
 }
 
 func (a *App) Update() error {
@@ -84,18 +87,26 @@ func (a *App) Update() error {
 		case v2.PieceKindPawn:
 			p := a.selectedPiece.(*v2.Pawn)
 			if stop := a.enPassant(p, position, board); stop {
+				a.recalculateBoard()
+				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 			if stop := a.normalPawn(p, position, board); stop {
+				a.recalculateBoard()
+				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 		case v2.PieceKindKnight, v2.PieceKindBishop, v2.PieceKindRook, v2.PieceKindQueen:
 			if stop := a.normal(a.selectedPiece, position, board); stop {
+				a.recalculateBoard()
+				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 		case v2.PieceKindKing:
 			p := a.selectedPiece.(*v2.King)
 			if stop := a.normalKing(p, position, board); stop {
+				a.recalculateBoard()
+				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 		case v2.PieceKindInvalid:
@@ -104,6 +115,41 @@ func (a *App) Update() error {
 	}
 
 	return nil
+}
+
+func (a *App) recalculateBoard() {
+	a.selectedPiece = nil
+
+	a.whitesTurn = !a.whitesTurn
+	for _, piece := range a.whiteBoard {
+		switch v2.CheckPieceKindFromAny(piece) {
+		case v2.PieceKindPawn, v2.PieceKindKnight, v2.PieceKindBishop, v2.PieceKindRook, v2.PieceKindQueen:
+			piece.SetOptions(make(map[int]struct{}))
+			piece.SetProtectedBy(make(map[int]v2.PieceInterface))
+			piece.SetAttackedBy(make(map[int]v2.PieceInterface))
+			piece.SetProtecting(make(map[int]v2.PieceInterface))
+		case v2.PieceKindKing:
+			piece.SetOptions(make(map[int]struct{}))
+			piece.SetProtecting(make(map[int]v2.PieceInterface))
+		case v2.PieceKindInvalid:
+			panic("invalid piece kind when calculating options")
+		}
+	}
+	for _, piece := range a.blackBoard {
+		switch v2.CheckPieceKindFromAny(piece) {
+		case v2.PieceKindPawn, v2.PieceKindKnight, v2.PieceKindBishop, v2.PieceKindRook, v2.PieceKindQueen:
+			piece.SetOptions(make(map[int]struct{}))
+			piece.SetProtectedBy(make(map[int]v2.PieceInterface))
+			piece.SetAttackedBy(make(map[int]v2.PieceInterface))
+			piece.SetProtecting(make(map[int]v2.PieceInterface))
+		case v2.PieceKindKing:
+			piece.SetOptions(make(map[int]struct{}))
+			piece.SetProtecting(make(map[int]v2.PieceInterface))
+		case v2.PieceKindInvalid:
+			panic("invalid piece kind when calculating options")
+		}
+	}
+	a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 }
 
 func (a *App) enPassant(pawn *v2.Pawn, position int, board map[int]v2.PieceInterface) bool {
@@ -121,10 +167,6 @@ func (a *App) enPassant(pawn *v2.Pawn, position int, board map[int]v2.PieceInter
 
 		board[option] = a.selectedPiece
 		delete(board, pawn.LastPosition)
-		a.selectedPiece = nil
-
-		a.whitesTurn = !a.whitesTurn
-		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 		return true
 	}
 
@@ -167,10 +209,6 @@ func (a *App) normalPawn(pawn *v2.Pawn, position int, board map[int]v2.PieceInte
 		}
 
 		delete(board, pawn.LastPosition)
-		a.selectedPiece = nil
-
-		a.whitesTurn = !a.whitesTurn
-		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 		return true
 	}
 
@@ -192,10 +230,6 @@ func (a *App) normal(piece v2.PieceInterface, position int, board map[int]v2.Pie
 
 		board[option] = a.selectedPiece
 		delete(board, piece.GetLastPosition())
-		a.selectedPiece = nil
-
-		a.whitesTurn = !a.whitesTurn
-		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 		return true
 	}
 
@@ -226,10 +260,6 @@ func (a *App) normalKing(king *v2.King, position int, board map[int]v2.PieceInte
 
 		board[option] = a.selectedPiece
 		delete(board, king.LastPosition)
-		a.selectedPiece = nil
-
-		a.whitesTurn = !a.whitesTurn
-		a.calculateAllPositions(a.whiteBoard, a.blackBoard)
 		return true
 	}
 

@@ -2,7 +2,6 @@ package v2
 
 import (
 	v2 "chess/pieces/v2"
-	"fmt"
 )
 
 func resetPinned(piece v2.PieceInterface) {
@@ -76,7 +75,6 @@ func (a *App) calculateAllPositions(whiteBoard map[int]v2.PieceInterface, blackB
 		if check {
 			for _, piece := range whiteBoard {
 				if v2.CheckPieceKindFromAny(piece) != v2.PieceKindKing {
-					fmt.Println(len(checkingPieces))
 					v2.RemoveOptionsDueToCheck(piece, kingPosition, checkingPieces)
 				}
 			}
@@ -112,7 +110,6 @@ func (a *App) calculateAllPositions(whiteBoard map[int]v2.PieceInterface, blackB
 		if check {
 			for _, piece := range blackBoard {
 				if v2.CheckPieceKindFromAny(piece) != v2.PieceKindKing {
-					fmt.Println(len(checkingPieces))
 					v2.RemoveOptionsDueToCheck(piece, kingPosition, checkingPieces)
 				}
 			}

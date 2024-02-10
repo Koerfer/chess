@@ -346,7 +346,9 @@ func (r *Rook) Copy(deep bool) PieceInterface {
 		HasBeenMoved:     r.HasBeenMoved,
 	}
 	if deep {
-		copyCat.PinnedByPiece = r.PinnedByPiece.Copy(false)
+		if r.PinnedByPiece != nil {
+			copyCat.PinnedByPiece = r.PinnedByPiece.Copy(false)
+		}
 		copyCat.Protecting, copyCat.ProtectedBy, copyCat.AttackedBy = copyProtectingAndAttacking(r.Protecting, r.ProtectedBy, r.AttackedBy)
 	}
 	return copyCat
