@@ -11,6 +11,7 @@ type King struct {
 	HasBeenMoved   bool
 	CheckingPieces map[int]PieceInterface
 	Checked        bool
+	HasCastled     bool
 }
 
 func (k *King) GetValue() int {
@@ -32,11 +33,9 @@ func (k *King) GetProtecting() map[int]PieceInterface {
 	return k.Protecting
 }
 func (k *King) GetAttackedBy() map[int]PieceInterface {
-	panic("wrong use of GetAttackedBy for king")
 	return nil
 }
 func (k *King) GetProtectedBy() map[int]PieceInterface {
-	panic("wrong use of GetProtectedBy for king")
 	return nil
 }
 func (k *King) SetValue(value int) {
@@ -324,6 +323,7 @@ func (k *King) Copy(deep bool) PieceInterface {
 		Options:        k.Options,
 		HasBeenMoved:   k.HasBeenMoved,
 		Checked:        k.Checked,
+		CheckingPieces: make(map[int]PieceInterface),
 	}
 	if deep {
 		copyCat.Protecting, copyCat.CheckingPieces, _ = copyProtectingAndAttacking(k.Protecting, k.CheckingPieces, nil)

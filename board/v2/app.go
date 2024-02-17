@@ -44,7 +44,8 @@ type App struct {
 	whitesTurn    bool
 	selectedPiece v2.PieceInterface
 
-	engine engine.Engine
+	engine             engine.Engine
+	engineResponseMove *engine.SelectedMove
 }
 
 func (a *App) Update() error {
@@ -57,6 +58,7 @@ func (a *App) Update() error {
 	switch a.whitesTurn {
 	case true:
 		board = a.whiteBoard
+		a.engineResponseMove = nil
 	case false:
 		board = a.blackBoard
 	}
@@ -66,17 +68,23 @@ func (a *App) Update() error {
 	}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		x, y := ebiten.CursorPosition()
-		X := int(math.Floor(float64(x) / (ScreenWidth / 8)))
-		Y := int(math.Floor(float64(y) / (ScreenHeight / 8)))
-		position := X + Y*8
-		if position >= 64 {
-			return nil
-		}
+		var position int
+		if a.whitesTurn {
+			x, y := ebiten.CursorPosition()
+			X := int(math.Floor(float64(x) / (ScreenWidth / 8)))
+			Y := int(math.Floor(float64(y) / (ScreenHeight / 8)))
+			position = X + Y*8
+			if position >= 64 {
+				return nil
+			}
 
-		if piece, ok := board[position]; ok {
-			piece.SetLastPosition(position)
-			a.selectedPiece = piece
+			if piece, ok := board[position]; ok {
+				piece.SetLastPosition(position)
+				a.selectedPiece = piece
+			}
+		} else {
+			a.selectedPiece = a.engineResponseMove.Piece
+			position = a.engineResponseMove.ToPosition
 		}
 
 		if a.selectedPiece == nil {
@@ -88,25 +96,21 @@ func (a *App) Update() error {
 			p := a.selectedPiece.(*v2.Pawn)
 			if stop := a.enPassant(p, position, board); stop {
 				a.recalculateBoard()
-				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 			if stop := a.normalPawn(p, position, board); stop {
 				a.recalculateBoard()
-				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 		case v2.PieceKindKnight, v2.PieceKindBishop, v2.PieceKindRook, v2.PieceKindQueen:
 			if stop := a.normal(a.selectedPiece, position, board); stop {
 				a.recalculateBoard()
-				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 		case v2.PieceKindKing:
 			p := a.selectedPiece.(*v2.King)
 			if stop := a.normalKing(p, position, board); stop {
 				a.recalculateBoard()
-				a.engine.Init(a.whiteBoard, a.blackBoard)
 				return nil
 			}
 		case v2.PieceKindInvalid:
@@ -150,6 +154,9 @@ func (a *App) recalculateBoard() {
 		}
 	}
 	a.calculateAllPositions(a.whiteBoard, a.blackBoard)
+	if !a.whitesTurn {
+		a.engineResponseMove = a.engine.Init(a.whiteBoard, a.blackBoard, false, true)
+	}
 }
 
 func (a *App) enPassant(pawn *v2.Pawn, position int, board map[int]v2.PieceInterface) bool {
@@ -252,6 +259,8 @@ func (a *App) normalKing(king *v2.King, position int, board map[int]v2.PieceInte
 		if !king.HasBeenMoved {
 			castled := a.castle(king, option, board)
 			if castled {
+				king.HasCastled = true
+				king.HasBeenMoved = true
 				return true
 			}
 		}

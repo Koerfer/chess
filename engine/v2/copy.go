@@ -15,3 +15,15 @@ func (e *Engine) copyBoard(whiteBoard map[int]v2.PieceInterface, blackBoard map[
 		e.blackBoard[k] = v.Copy(true)
 	}
 }
+
+func (s *Simulator) copyBoard(whiteBoard map[int]v2.PieceInterface, blackBoard map[int]v2.PieceInterface) {
+	s.whiteBoard = make(map[int]v2.PieceInterface)
+	s.blackBoard = make(map[int]v2.PieceInterface)
+	for k, v := range whiteBoard {
+		s.whiteBoard[k] = v.Copy(true)
+	}
+
+	for k, v := range blackBoard {
+		s.blackBoard[k] = v.Copy(true)
+	}
+}

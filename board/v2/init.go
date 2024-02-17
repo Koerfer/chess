@@ -111,13 +111,11 @@ func (a *App) addPiece(pos int, kind v2.PieceKind, white bool) {
 			}
 		case v2.PieceKindKing:
 			a.whiteBoard[pos] = &v2.King{
-
-				White:        white,
-				LastPosition: pos,
-				Options:      make(map[int]struct{}),
-				Protecting:   make(map[int]v2.PieceInterface),
-				Value:        100,
-
+				White:          white,
+				LastPosition:   pos,
+				Options:        make(map[int]struct{}),
+				Protecting:     make(map[int]v2.PieceInterface),
+				Value:          100,
 				CheckingPieces: make(map[int]v2.PieceInterface),
 			}
 		case v2.PieceKindInvalid:
