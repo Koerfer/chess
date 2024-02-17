@@ -3,8 +3,8 @@ package v2
 import v2 "chess/pieces/v2"
 
 func (e *Engine) evaluateKingPosition() {
-	protectedByPawnValue := 0.2
-	protectedByOtherValue := 0.1
+	protectedByPawnValue := 0.1
+	protectedByOtherValue := 0.05
 	for position, piece := range e.whiteBoard {
 		if v2.CheckPieceKindFromAny(piece) != v2.PieceKindKing {
 			continue
@@ -125,13 +125,19 @@ func (e *Engine) evaluateKingPosition() {
 			if _, ok := e.whiteBoard[position-8]; ok {
 				if _, ok := e.whiteBoard[position-7]; ok {
 					if _, ok := e.whiteBoard[position-9]; ok {
-						e.whiteEval -= 1
+						if _, ok := e.whiteBoard[position-1]; ok {
+
+						} else if _, ok := e.whiteBoard[position+1]; ok {
+
+						} else {
+							e.whiteEval -= 1
+						}
 					}
 				}
 			}
 		}
 
-		e.whiteEval += float64(position/8-7) * protectedByOtherValue
+		e.whiteEval += float64(position/8-7) * 0.2
 
 		break
 	}
@@ -256,13 +262,19 @@ func (e *Engine) evaluateKingPosition() {
 			if _, ok := e.blackBoard[position+8]; ok {
 				if _, ok := e.blackBoard[position+7]; ok {
 					if _, ok := e.blackBoard[position+9]; ok {
-						e.blackEval -= 1
+						if _, ok := e.blackBoard[position-1]; ok {
+
+						} else if _, ok := e.blackBoard[position+1]; ok {
+
+						} else {
+							e.blackEval -= 1
+						}
 					}
 				}
 			}
 		}
 
-		e.blackEval -= float64(position/8) * protectedByOtherValue
+		e.blackEval -= float64(position/8) * 0.2
 
 		break
 	}

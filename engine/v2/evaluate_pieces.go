@@ -17,6 +17,7 @@ func (e *Engine) evaluatePieces() {
 			king := piece.(*v2.King)
 			if king.Checked {
 				whiteChecked = true
+				e.whiteEval -= 1
 			}
 		}
 
@@ -42,6 +43,7 @@ func (e *Engine) evaluatePieces() {
 			king := piece.(*v2.King)
 			if king.Checked {
 				blackChecked = true
+				e.blackEval -= 1
 			}
 		}
 
@@ -58,13 +60,13 @@ func (e *Engine) evaluatePieces() {
 
 func (e *Engine) safeWhiteFork(piece v2.PieceInterface) (int, bool) {
 	count := 0
-	value := 0
+	value := 1000
 	if len(piece.GetAttackedBy()) == 0 {
 		for attacked := range piece.GetOptions() {
 			if piece, ok := e.blackBoard[attacked]; ok {
 				if len(piece.GetProtectedBy()) == 0 {
 					count++
-					if piece.GetValue() > value {
+					if piece.GetValue() < value {
 						value = piece.GetValue()
 					}
 				}
@@ -81,13 +83,13 @@ func (e *Engine) safeWhiteFork(piece v2.PieceInterface) (int, bool) {
 
 func (e *Engine) safeBlackFork(piece v2.PieceInterface) (int, bool) {
 	count := 0
-	value := 0
+	value := 1000
 	if len(piece.GetAttackedBy()) == 0 {
 		for attacked := range piece.GetOptions() {
 			if piece, ok := e.whiteBoard[attacked]; ok {
 				if len(piece.GetProtectedBy()) == 0 {
 					count++
-					if piece.GetValue() > value {
+					if piece.GetValue() < value {
 						value = piece.GetValue()
 					}
 				}
@@ -106,6 +108,11 @@ func checkIfBackRank(piece v2.PieceInterface, pos int) bool {
 	if piece.GetValue() == 5 {
 		rook := piece.(*v2.Rook)
 		if !rook.HasBeenMoved {
+			return false
+		}
+	} else if piece.GetValue() == 100 {
+		king := piece.(*v2.King)
+		if !king.HasBeenMoved {
 			return false
 		}
 	}

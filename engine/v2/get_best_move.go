@@ -17,7 +17,7 @@ func (e *Engine) getBestMove() *SelectedMove {
 	bestOption := chosen10[0]
 
 	for i := 0; i < numberOfWorkers; i++ {
-		go e.bestNextMove(input, 3, results)
+		go e.bestNextMove(input, 2, results)
 	}
 
 	for _, chosen := range chosen10 {
@@ -212,7 +212,7 @@ func (e *Engine) getNext10(selectedMove *SelectedMove) []*SelectedMove {
 
 func maxOfSlice(valuePerIndex []float64) (int, float64) {
 	var worstIndex int
-	worstValue := -1000.00
+	worstValue := -100000.00
 	for i, value := range valuePerIndex {
 		if value > worstValue {
 			worstValue = value
@@ -225,7 +225,7 @@ func maxOfSlice(valuePerIndex []float64) (int, float64) {
 
 func minOfSlice(valuePerIndex []float64) (int, float64) {
 	var worstIndex int
-	worstValue := 1000.00
+	worstValue := 100000.00
 	for i, value := range valuePerIndex {
 		if value < worstValue {
 			worstValue = value

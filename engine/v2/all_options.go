@@ -13,7 +13,7 @@ func (e *Engine) getAllOptions() {
 		}
 	}
 
-	e.evalOptions()
+	//e.evalOptions()
 }
 
 func (e *Engine) evalOptions() {

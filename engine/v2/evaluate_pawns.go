@@ -14,7 +14,7 @@ func (e *Engine) evaluatePawns() {
 				// king protecting no good
 			} else {
 				if len(protector.GetAttackedBy()) == 0 {
-					e.whiteEval += 0.2
+					e.whiteEval += 0.1
 				}
 			}
 		}
@@ -36,7 +36,7 @@ func (e *Engine) evaluatePawns() {
 				// king protecting no good
 			} else {
 				if len(protector.GetAttackedBy()) == 0 {
-					e.blackEval += 0.2
+					e.blackEval += 0.1
 				}
 			}
 		}
@@ -50,14 +50,14 @@ func (e *Engine) evaluatePawns() {
 func (e *Engine) evaluateWhitePawnPositions(positions map[int]struct{}) {
 	for i := 55; i < 0; i-- {
 		if _, ok := positions[i]; ok {
-			if _, ok := e.allWhiteOptions[i+8]; !ok {
+			if _, ok := e.allWhiteOptions[i-8]; !ok {
 				if i%8 == 0 {
-					if _, ok := positions[i+1]; ok {
-						e.superWeakWhiteSquares[i+8] = struct{}{}
+					if _, ok := positions[i+1]; !ok {
+						e.superWeakWhiteSquares[i-8] = struct{}{}
 					}
 				} else if i%8 == 7 {
-					if _, ok := positions[i-1]; ok {
-						e.superWeakWhiteSquares[i+8] = struct{}{}
+					if _, ok := positions[i-1]; !ok {
+						e.superWeakWhiteSquares[i-8] = struct{}{}
 					}
 				} else {
 					both := true
@@ -68,17 +68,17 @@ func (e *Engine) evaluateWhitePawnPositions(positions map[int]struct{}) {
 						both = false
 					}
 					if both {
-						e.superWeakWhiteSquares[i+8] = struct{}{}
+						e.superWeakWhiteSquares[i-8] = struct{}{}
 					}
 				}
 			} else {
 				if i%8 == 0 {
-					if _, ok := positions[i+1]; ok {
-						e.weakWhiteSquares[i+8] = struct{}{}
+					if _, ok := positions[i+1]; !ok {
+						e.weakWhiteSquares[i-8] = struct{}{}
 					}
 				} else if i%8 == 7 {
-					if _, ok := positions[i-1]; ok {
-						e.weakWhiteSquares[i+8] = struct{}{}
+					if _, ok := positions[i-1]; !ok {
+						e.weakWhiteSquares[i-8] = struct{}{}
 					}
 				} else {
 					both := true
@@ -89,7 +89,7 @@ func (e *Engine) evaluateWhitePawnPositions(positions map[int]struct{}) {
 						both = false
 					}
 					if both {
-						e.weakWhiteSquares[i+8] = struct{}{}
+						e.weakWhiteSquares[i-8] = struct{}{}
 					}
 				}
 			}
@@ -100,14 +100,14 @@ func (e *Engine) evaluateWhitePawnPositions(positions map[int]struct{}) {
 func (e *Engine) evaluateBlackPawnPositions(positions map[int]struct{}) {
 	for i := 8; i < 64; i++ {
 		if _, ok := positions[i]; ok {
-			if _, ok := e.allBlackOptions[i-8]; !ok {
+			if _, ok := e.allBlackOptions[i+8]; !ok {
 				if i%8 == 0 {
-					if _, ok := positions[i+1]; ok {
-						e.superWeakBlackSquares[i-8] = struct{}{}
+					if _, ok := positions[i+1]; !ok {
+						e.superWeakBlackSquares[i+8] = struct{}{}
 					}
 				} else if i%8 == 7 {
-					if _, ok := positions[i-1]; ok {
-						e.superWeakBlackSquares[i-8] = struct{}{}
+					if _, ok := positions[i-1]; !ok {
+						e.superWeakBlackSquares[i+8] = struct{}{}
 					}
 				} else {
 					both := true
@@ -118,17 +118,17 @@ func (e *Engine) evaluateBlackPawnPositions(positions map[int]struct{}) {
 						both = false
 					}
 					if both {
-						e.superWeakBlackSquares[i-8] = struct{}{}
+						e.superWeakBlackSquares[i+8] = struct{}{}
 					}
 				}
 			} else {
 				if i%8 == 0 {
-					if _, ok := positions[i+1]; ok {
-						e.weakBlackSquares[i-8] = struct{}{}
+					if _, ok := positions[i+1]; !ok {
+						e.weakBlackSquares[i+8] = struct{}{}
 					}
 				} else if i%8 == 7 {
-					if _, ok := positions[i-1]; ok {
-						e.weakBlackSquares[i-8] = struct{}{}
+					if _, ok := positions[i-1]; !ok {
+						e.weakBlackSquares[i+8] = struct{}{}
 					}
 				} else {
 					both := true
@@ -139,7 +139,7 @@ func (e *Engine) evaluateBlackPawnPositions(positions map[int]struct{}) {
 						both = false
 					}
 					if both {
-						e.weakBlackSquares[i-8] = struct{}{}
+						e.weakBlackSquares[i+8] = struct{}{}
 					}
 				}
 			}
