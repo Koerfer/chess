@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"math"
+	"time"
 )
 
 const (
@@ -83,6 +84,13 @@ func (a *App) Update() error {
 				a.selectedPiece = piece
 			}
 		} else {
+			now := time.Now()
+			a.engineResponseMove = a.engine.Init(a.whiteBoard, a.blackBoard, false, true)
+			fmt.Println(time.Since(now))
+			if a.engineResponseMove == nil {
+				fmt.Println("nil engine move")
+				return nil
+			}
 			a.selectedPiece = a.engineResponseMove.Piece
 			position = a.engineResponseMove.ToPosition
 		}
@@ -154,9 +162,6 @@ func (a *App) recalculateBoard() {
 		}
 	}
 	a.calculateAllPositions(a.whiteBoard, a.blackBoard)
-	if !a.whitesTurn {
-		a.engineResponseMove = a.engine.Init(a.whiteBoard, a.blackBoard, false, true)
-	}
 }
 
 func (a *App) enPassant(pawn *v2.Pawn, position int, board map[int]v2.PieceInterface) bool {

@@ -241,6 +241,9 @@ func (k *King) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 		newForbiddenSquares[newPosition] = value
 	}
 
+	if k.Checked {
+		return newForbiddenSquares
+	}
 	switch k.White {
 	case true:
 		if k.HasBeenMoved {

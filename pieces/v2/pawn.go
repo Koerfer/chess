@@ -101,23 +101,18 @@ func (p *Pawn) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 	oneUp := position - 8*offsetMultiplier
 	twoUp := position - 16*offsetMultiplier
 	if position/8 == (endPosition + 6*offsetMultiplier) {
-		if _, ok := opponentBoard[position-16*offsetMultiplier]; ok {
-			p.Options[oneUp] = value
-			p.calculatePinnedOptions(position)
-			p.deleteOptions(myBoard)
-			return forbiddenSquares
-		}
 		if _, ok := myBoard[oneUp]; !ok {
 			if _, ok := opponentBoard[oneUp]; !ok {
 				p.Options[oneUp] = value
 				if _, ok := myBoard[twoUp]; !ok {
-					if _, ok := opponentBoard[oneUp]; !ok {
+					if _, ok := opponentBoard[twoUp]; !ok {
 						p.Options[twoUp] = value
 					}
 				}
 			}
 
 		}
+
 		p.calculatePinnedOptions(position)
 		return forbiddenSquares
 	}
@@ -127,7 +122,6 @@ func (p *Pawn) CalculateMoves(whiteBoard map[int]PieceInterface, blackBoard map[
 	}
 	p.Options[position-8*offsetMultiplier] = value
 	p.calculatePinnedOptions(position)
-	p.deleteOptions(myBoard)
 	return forbiddenSquares
 }
 
@@ -218,18 +212,6 @@ func (p *Pawn) calculatePinnedOptions(position int) {
 			}
 			delete(p.Options, option)
 		}
-	}
-}
-
-func (p *Pawn) deleteOptions(board map[int]PieceInterface) {
-	var toRemove []int
-	for option := range p.Options {
-		if _, ok := board[option]; ok {
-			toRemove = append(toRemove, option)
-		}
-	}
-	for _, toDelete := range toRemove {
-		delete(p.Options, toDelete)
 	}
 }
 

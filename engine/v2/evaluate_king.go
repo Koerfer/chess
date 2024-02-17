@@ -12,7 +12,7 @@ func (e *Engine) evaluateKingPosition() {
 
 		king := piece.(*v2.King)
 		if king.HasCastled {
-			e.whiteEval += 0.5
+			e.whiteEval += 3
 		}
 		if !king.HasCastled && king.HasBeenMoved {
 			e.whiteEval -= 2

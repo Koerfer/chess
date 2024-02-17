@@ -17,6 +17,6 @@ func (e *Engine) getAllOptions() {
 }
 
 func (e *Engine) evalOptions() {
-	e.whiteEval += float64(len(e.allWhiteOptions)) * 0.1
-	e.blackEval += float64(len(e.allBlackOptions)) * 0.1
+	e.whiteEval += float64(len(e.allWhiteOptions)) * 0.05
+	e.blackEval += float64(len(e.allBlackOptions)) * 0.05
 }
